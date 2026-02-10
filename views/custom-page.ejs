@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <%- include('partials/head', { meta }) %>
+
+    <% if (page?.css_code) { %>
+      <style><%- page.css_code %></style>
+    <% } %>
+
+    <% if (page?.unsafe_js) { %>
+      <!-- Unsafe JS enabled for this page: kept explicit and visible. -->
+      <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-ancestors 'self';" />
+    <% } else { %>
+      <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; connect-src 'self' https:; frame-ancestors 'self';" />
+    <% } %>
+  </head>
+
+  <body>
+    <%- include('partials/site-header', { content }) %>
+
+    <main class="container" style="padding: 26px 0">
+      <article class="card" style="padding:16px">
+        <h1 style="margin:0 0 10px"><%= page?.title || 'صفحة' %></h1>
+        <div class="customPageBody">
+          <%- page?.html_code || '' %>
+        </div>
+      </article>
+    </main>
+
+    <%- include('partials/site-footer', { content }) %>
+
+    <% if (page?.unsafe_js && page?.js_code) { %>
+      <script><%- page.js_code %></script>
+    <% } %>
+  </body>
+</html>

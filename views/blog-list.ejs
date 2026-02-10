@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <%- include('partials/head', { meta }) %>
+    <style>
+      .page { padding: 44px 0 70px; }
+      .postGrid { display:grid; gap:16px; grid-template-columns: repeat(3, minmax(0,1fr)); }
+      @media (max-width: 980px){ .postGrid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+      @media (max-width: 760px){ .postGrid { grid-template-columns: 1fr; } }
+      .postCard { border: 1px solid rgba(0,0,0,0.08); border-radius: 18px; overflow:hidden; background: rgba(255,255,255,0.8); box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
+      .postCard__img { height: 170px; background:#eef2f6; }
+      .postCard__img img { width:100%; height:100%; object-fit:cover; }
+      .postCard__body { padding: 14px; display:grid; gap:10px; }
+      .postCard__title { margin:0; font-size: 18px; font-weight: 900; }
+      .postCard__desc { margin:0; font-weight: 700; color: rgba(11,31,42,0.72); }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/site-header') %>
+    <main class="page">
+      <div class="container">
+        <div class="section__head">
+          <h2>المدونة</h2>
+          <p>مقالات وأفضل الممارسات في حلول إنترنت الأشياء داخل السعودية.</p>
+        </div>
+
+        <div class="postGrid">
+          <% posts.forEach(function(p){ %>
+            <article class="postCard" data-tilt>
+              <a href="/blog/<%= p.slug %>">
+                <div class="postCard__img">
+                  <% if (p.cover_image) { %>
+                    <img src="<%= p.cover_image %>" alt="<%= p.title %>" loading="lazy" />
+                  <% } %>
+                </div>
+                <div class="postCard__body">
+                  <h3 class="postCard__title"><%= p.title %></h3>
+                  <p class="postCard__desc"><%= p.excerpt %></p>
+                  <div><span class="btn btn--ghost btn--small">اقرأ المقال</span></div>
+                </div>
+              </a>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    </main>
+    <%- include('partials/site-footer') %>
+  </body>
+</html>

@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ATEX | لوحة الإدارة</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Quill (Rich Text Editor) -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+
+    <link rel="stylesheet" href="/admin/admin.css" />
+  </head>
+  <body>
+    <div class="adminShell">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar" aria-label="التنقّل في لوحة الإدارة">
+        <div class="sidebar__brand">
+          <div class="brand__logo"><span>AT</span><span class="accent">EX</span></div>
+          <div class="sidebar__subtitle">لوحة الإدارة</div>
+        </div>
+
+        <div class="sideNav__group" id="favoritesGroup" hidden>
+          <div class="sideNav__title">المفضلة</div>
+          <div class="sideNav__links" id="favoritesLinks"></div>
+        </div>
+
+        <nav class="sideNav" aria-label="أقسام الإدارة">
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>عام</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/dashboard" data-route="dashboard">Dashboard <span class="favStar" data-fav-route="dashboard">☆</span></a>
+            </div>
+          </div>
+
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>المحتوى</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/home" data-route="home">تحرير الصفحة الرئيسية <span class="favStar" data-fav-route="home">☆</span></a>
+              <a class="sideNav__item" href="#/custom-pages" data-route="custom-pages">Custom Pages <span class="favStar" data-fav-route="custom-pages">☆</span></a>
+              <a class="sideNav__item" href="#/blog" data-route="blog">المدونة <span class="favStar" data-fav-route="blog">☆</span></a>
+            </div>
+          </div>
+
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>CRM</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/leads" data-route="leads">Leads <span class="favStar" data-fav-route="leads">☆</span></a>
+            </div>
+          </div>
+
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>الكتالوج</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/products" data-route="products">Products <span class="favStar" data-fav-route="products">☆</span></a>
+              <a class="sideNav__item" href="#/categories" data-route="categories">Categories <span class="favStar" data-fav-route="categories">☆</span></a>
+            </div>
+          </div>
+
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>النمو</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/analytics" data-route="analytics">Analytics (GA/GTM) <span class="favStar" data-fav-route="analytics">☆</span></a>
+              <a class="sideNav__item" href="#/website-stats" data-route="website-stats">Website Stats <span class="favStar" data-fav-route="website-stats">☆</span></a>
+            </div>
+          </div>
+
+          <div class="sideNav__group">
+            <button class="sideNav__title sideNav__toggle" type="button" data-group-toggle>النظام</button>
+            <div class="sideNav__links">
+              <a class="sideNav__item" href="#/settings" data-route="settings">Settings <span class="favStar" data-fav-route="settings">☆</span></a>
+              <a class="sideNav__item" href="#/users" data-route="users">Users / Roles <span class="favStar" data-fav-route="users">☆</span></a>
+            </div>
+          </div>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button class="btn btn--ghost" id="logoutBtn" type="button">تسجيل خروج</button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="main">
+        <header class="pageTop">
+          <button class="iconBtn" id="sidebarToggle" type="button" aria-label="إظهار/إخفاء القائمة">☰</button>
+          <div class="crumbs" id="breadcrumbs" aria-label="مسار الصفحة">لوحة الإدارة</div>
+
+          <div class="pageTop__spacer"></div>
+
+          <div class="search">
+            <input class="field__input" id="globalSearch" type="search" placeholder="بحث سريع (Leads / Products / Pages)" />
+            <div class="search__results" id="searchResults" hidden></div>
+          </div>
+
+          <div class="quickActions" id="quickActions"></div>
+          <button class="btn btn--ghost" id="commandPaletteBtn" type="button" title="Ctrl+K">⌘K</button>
+        </header>
+
+        <main class="content">
+          <section class="layout">
+            <div class="layout__main">
+              <!-- Dashboard -->
+              <section class="page panel" data-page="dashboard">
+                <h1 class="panel__title">Dashboard</h1>
+                <p class="panel__desc">وصول سريع لأهم الوحدات.</p>
+                <div class="cards">
+                  <a class="miniCard" href="#/home">تحرير الصفحة الرئيسية</a>
+                  <a class="miniCard" href="#/custom-pages">Custom Pages</a>
+                  <a class="miniCard" href="#/analytics">Analytics</a>
+                  <a class="miniCard" href="#/website-stats">Website Stats</a>
+                </div>
+              </section>
+
+              <!-- Home Editor (existing UI preserved) -->
+              <section class="page panel" data-page="home" hidden>
+                <h1 class="panel__title">تحرير الصفحة الرئيسية</h1>
+                <p class="panel__desc">تعديل جميع أقسام الصفحة الرئيسية (Hero / حلول / منصة / إحصائيات / لماذا / خطوات / تكاملات / FAQ / تواصل).</p>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">الشريط العلوي (Topbar)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">نص الدعم</span>
+              <input class="field__input" id="topbarSupportText" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">رقم الهاتف</span>
+              <input class="field__input" id="topbarPhone" type="text" dir="ltr" />
+            </label>
+            <label class="field">
+              <span class="field__label">العبارة</span>
+              <input class="field__input" id="topbarTagline" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">زر (نص)</span>
+              <input class="field__input" id="topbarCtaText" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">زر (رابط)</span>
+              <input class="field__input" id="topbarCtaHref" type="text" dir="ltr" placeholder="#contact" />
+            </label>
+          </div>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">Hero</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">Kicker</span>
+              <input class="field__input" id="heroKicker" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">عنوان الهيرو</span>
+              <input class="field__input" id="heroTitle" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">نص الهيرو</span>
+              <textarea class="field__input" id="heroDesc" rows="4"></textarea>
+            </label>
+            <label class="field">
+              <span class="field__label">زر أساسي</span>
+              <input class="field__input" id="heroCtaPrimary" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">زر ثانوي</span>
+              <input class="field__input" id="heroCtaSecondary" type="text" />
+            </label>
+          </div>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">Hero Video Background</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">مصدر الفيديو</span>
+              <select class="field__input" id="heroVideoSourceType">
+                <option value="youtube">YouTube link</option>
+                <option value="upload">Uploaded video</option>
+              </select>
+            </label>
+            <label class="field" id="heroVideoYoutubeWrap">
+              <span class="field__label">رابط YouTube</span>
+              <input class="field__input" id="heroVideoYoutubeUrl" type="url" dir="ltr" placeholder="https://www.youtube.com/watch?v=xwYbULh3aRE" />
+            </label>
+          </div>
+
+          <div class="field" id="heroVideoUploadWrap">
+            <span class="field__label">الفيديو المرفوع (URL)</span>
+            <input class="field__input" id="heroVideoUploadedUrl" type="text" dir="ltr" placeholder="/uploads/videos/..." />
+          </div>
+
+          <div class="actions">
+            <input class="field__input" id="heroVideoUploadFile" type="file" accept="video/mp4,video/webm,video/ogg,.mp4,.webm,.ogg" />
+            <button class="btn btn--ghost" id="heroVideoUploadBtn" type="button">رفع فيديو جديد</button>
+            <button class="btn btn--ghost" id="heroVideoRefreshListBtn" type="button">تحديث القائمة</button>
+            <span class="status" id="heroVideoUploadStatus" aria-live="polite"></span>
+          </div>
+
+          <div class="videoLibrary" id="heroVideoLibrary" aria-live="polite"></div>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">حلول (Solutions)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="solutionsHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <input class="field__input" id="solutionsSubheading" type="text" />
+            </label>
+          </div>
+          <div class="array" id="solutionsCards" data-array="solutions.cards"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="solutions.cards">+ إضافة بطاقة</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">المنصة + الإحصائيات (Platform & Stats)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">Kicker</span>
+              <input class="field__input" id="platformKicker" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="platformTitle" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">الوصف</span>
+              <textarea class="field__input" id="platformDesc" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span class="field__label">زر 1</span>
+              <input class="field__input" id="platformCtaPrimary" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">زر 2</span>
+              <input class="field__input" id="platformCtaSecondary" type="text" />
+            </label>
+          </div>
+
+          <div class="array" id="statsArray" data-array="stats"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="stats">+ إضافة إحصائية</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">لماذا ATEX (Why)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="whyHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <input class="field__input" id="whySubheading" type="text" />
+            </label>
+          </div>
+          <div class="array" id="whyCards" data-array="why.cards"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="why.cards">+ إضافة بطاقة</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">خطوات التنفيذ (Process)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="processHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <input class="field__input" id="processSubheading" type="text" />
+            </label>
+          </div>
+          <div class="array" id="processSteps" data-array="process.steps"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="process.steps">+ إضافة خطوة</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">التكاملات (Integrations)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="integrationsHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <input class="field__input" id="integrationsSubheading" type="text" />
+            </label>
+          </div>
+          <div class="array" id="integrationsChips" data-array="integrations.chips"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="integrations.chips">+ إضافة Chip</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">الأسئلة الشائعة (FAQ)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">العنوان</span>
+              <input class="field__input" id="faqHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <input class="field__input" id="faqSubheading" type="text" />
+            </label>
+          </div>
+          <div class="array" id="faqItems" data-array="faq.items"></div>
+          <button class="btn btn--ghost" type="button" data-add-item="faq.items">+ إضافة سؤال</button>
+        </div>
+
+        <div class="sectionBlock">
+          <h2 class="sectionBlock__title">التواصل (Contact)</h2>
+          <div class="grid2">
+            <label class="field">
+              <span class="field__label">عنوان القسم</span>
+              <input class="field__input" id="contactHeading" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">وصف</span>
+              <textarea class="field__input" id="contactSubheading" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span class="field__label">البريد للتواصل</span>
+              <input class="field__input" id="contactEmail" type="email" dir="ltr" />
+            </label>
+            <label class="field">
+              <span class="field__label">الهاتف</span>
+              <input class="field__input" id="contactPhone" type="text" dir="ltr" />
+            </label>
+            <label class="field">
+              <span class="field__label">العنوان (City/Address)</span>
+              <input class="field__input" id="contactAddress" type="text" />
+            </label>
+            <label class="field">
+              <span class="field__label">نص زر العودة للأعلى</span>
+              <input class="field__input" id="contactBackToTopText" type="text" />
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn--primary" id="saveHomeBtn" type="button">حفظ</button>
+          <a class="btn btn--ghost" href="/" target="_blank" rel="noreferrer">فتح الموقع</a>
+          <span class="status" id="homeStatus" aria-live="polite"></span>
+        </div>
+              </section>
+
+              <!-- Blog Editor (existing UI preserved) -->
+              <section class="page panel" data-page="blog" hidden>
+                <h1 class="panel__title">إدارة المدونة</h1>
+                <div class="blogLayout">
+                  <aside class="postList">
+                    <div class="postList__head">
+                      <button class="btn btn--primary" id="newPostBtn" type="button">مقال جديد</button>
+                      <button class="btn btn--ghost" id="refreshPostsBtn" type="button">تحديث</button>
+                    </div>
+                    <div class="postList__items" id="postsList" aria-live="polite"></div>
+                  </aside>
+
+                  <article class="editor">
+                    <div class="grid2">
+                      <label class="field">
+                        <span class="field__label">العنوان</span>
+                        <input class="field__input" id="postTitle" type="text" />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">Slug</span>
+                        <input class="field__input" id="postSlug" type="text" dir="ltr" />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">ملخص</span>
+                        <textarea class="field__input" id="postExcerpt" rows="3"></textarea>
+                      </label>
+                      <label class="field">
+                        <span class="field__label">صورة الغلاف (URL)</span>
+                        <input class="field__input" id="postCover" type="text" dir="ltr" />
+                      </label>
+                    </div>
+
+                    <div class="field">
+                      <span class="field__label">المحتوى</span>
+                      <div id="quillEditor" class="quill"></div>
+                      <p class="hint">رفع الصور داخل المحتوى مدعوم (سيتم رفعها إلى /uploads عبر API).</p>
+                    </div>
+
+                    <label class="toggle">
+                      <input type="checkbox" id="postPublished" />
+                      <span>نشر المقال</span>
+                    </label>
+
+                    <div class="actions">
+                      <button class="btn btn--primary" id="savePostBtn" type="button">حفظ المقال</button>
+                      <button class="btn btn--ghost" id="deletePostBtn" type="button">حذف</button>
+                      <span class="status" id="postStatus" aria-live="polite"></span>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              <!-- Custom Pages -->
+              <section class="page panel" data-page="custom-pages" hidden>
+                <div class="panel__head">
+                  <div>
+                    <h1 class="panel__title">Custom Pages</h1>
+                    <p class="panel__desc">إدارة صفحات مخصصة تظهر على atex.sa/rec/:slug</p>
+                  </div>
+                  <div class="panel__actions">
+                    <button class="btn btn--primary" id="createCustomPageBtn" type="button">+ إنشاء صفحة</button>
+                    <button class="btn btn--ghost" id="refreshCustomPagesBtn" type="button">تحديث</button>
+                  </div>
+                </div>
+
+                <div class="grid2" style="align-items:start">
+                  <div>
+                    <div class="tableTools">
+                      <input class="field__input" id="customPagesFilter" type="search" placeholder="فلترة بالعنوان أو الرابط" />
+                      <div class="tableTools__right">
+                        <button class="btn btn--ghost" id="bulkPublishBtn" type="button">نشر</button>
+                        <button class="btn btn--ghost" id="bulkUnpublishBtn" type="button">إخفاء</button>
+                        <button class="btn btn--ghost" id="bulkDeleteBtn" type="button">حذف</button>
+                      </div>
+                    </div>
+
+                    <div class="tableWrap">
+                      <table class="table" aria-label="قائمة الصفحات المخصصة">
+                        <thead>
+                          <tr>
+                            <th style="width:44px"><input type="checkbox" id="customPagesSelectAll" /></th>
+                            <th>العنوان</th>
+                            <th dir="ltr">Slug</th>
+                            <th>الحالة</th>
+                            <th dir="ltr">Updated</th>
+                          </tr>
+                        </thead>
+                        <tbody id="customPagesTableBody"></tbody>
+                      </table>
+                    </div>
+                    <div class="pager">
+                      <button class="btn btn--ghost" id="customPagesPrev" type="button">السابق</button>
+                      <span class="muted" id="customPagesPagerText"></span>
+                      <button class="btn btn--ghost" id="customPagesNext" type="button">التالي</button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="note" id="customPageEmptyEditor">اختر صفحة من القائمة أو أنشئ صفحة جديدة.</div>
+
+                    <form id="customPageEditor" class="editorForm" hidden>
+                      <input type="hidden" id="customPageId" />
+                      <label class="field">
+                        <span class="field__label">العنوان</span>
+                        <input class="field__input" id="customPageTitle" type="text" required />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">Slug (rec/:slug)</span>
+                        <input class="field__input" id="customPageSlug" type="text" dir="ltr" required />
+                        <span class="hint" id="customPageSlugHint"></span>
+                      </label>
+
+                      <div class="grid2">
+                        <label class="toggle">
+                          <input type="checkbox" id="customPagePublished" />
+                          <span>منشور</span>
+                        </label>
+                        <label class="toggle">
+                          <input type="checkbox" id="customPageUnsafeJs" />
+                          <span>Unsafe JS (تحذير)</span>
+                        </label>
+                      </div>
+
+                      <label class="field">
+                        <span class="field__label">HTML</span>
+                        <textarea class="field__input mono" id="customPageHtml" rows="8" dir="ltr"></textarea>
+                      </label>
+                      <label class="field">
+                        <span class="field__label">CSS</span>
+                        <textarea class="field__input mono" id="customPageCss" rows="6" dir="ltr"></textarea>
+                      </label>
+                      <label class="field">
+                        <span class="field__label">JS (يسمح فقط عند Unsafe Mode)</span>
+                        <textarea class="field__input mono" id="customPageJs" rows="6" dir="ltr"></textarea>
+                      </label>
+
+                      <div class="tabs" id="customEditorTabs">
+                        <button class="btn btn--ghost tabBtn is-active" type="button" data-tab="html">HTML</button>
+                        <button class="btn btn--ghost tabBtn" type="button" data-tab="css">CSS</button>
+                        <button class="btn btn--ghost tabBtn" type="button" data-tab="js">JS</button>
+                        <button class="btn btn--ghost tabBtn" type="button" data-tab="preview">Preview</button>
+                      </div>
+                      <iframe id="customPagePreview" class="previewFrame" title="Custom Page Preview" hidden></iframe>
+
+                      <div class="actions">
+                        <button class="btn btn--primary" id="saveCustomPageBtn" type="submit">حفظ</button>
+                        <button class="btn btn--ghost" id="deleteCustomPageBtn" type="button">حذف</button>
+                        <a class="btn btn--ghost" id="openCustomPageBtn" href="#" target="_blank" rel="noreferrer">فتح</a>
+                        <span class="status" id="customPageStatus"></span>
+                      </div>
+                      <div class="hint" id="customPagePublishMeta"></div>
+                      <p class="hint">ملاحظة: يتم تنقية HTML تلقائياً. تفعيل JS غير آمن ويجب استخدامه بحذر.</p>
+                    </form>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Analytics Settings -->
+              <section class="page panel" data-page="analytics" hidden>
+                <div class="panel__head">
+                  <div>
+                    <h1 class="panel__title">Analytics (GA4 / GTM)</h1>
+                    <p class="panel__desc">إعدادات Google Analytics و Google Tag Manager + حالة التفعيل.</p>
+                  </div>
+                </div>
+
+                <form id="analyticsForm" class="editorForm">
+                  <label class="toggle">
+                    <input type="checkbox" id="analyticsEnabled" />
+                    <span>تفعيل التحليلات</span>
+                  </label>
+                  <div class="grid2">
+                    <label class="field">
+                      <span class="field__label">GA4 Measurement ID</span>
+                      <input class="field__input" id="gaMeasurementId" type="text" dir="ltr" placeholder="G-XXXXXXXXXX" />
+                    </label>
+                    <label class="field">
+                      <span class="field__label">GTM Container ID (اختياري)</span>
+                      <input class="field__input" id="gtmContainerId" type="text" dir="ltr" placeholder="GTM-XXXXXXX" />
+                    </label>
+                  </div>
+
+                  <div class="actions">
+                    <button class="btn btn--primary" type="submit">حفظ</button>
+                    <button class="btn btn--ghost" id="sendTestEventBtn" type="button">إرسال Test Event</button>
+                    <span class="status" id="analyticsStatus"></span>
+                  </div>
+
+                  <div class="note" id="analyticsEffective"></div>
+                  <div class="note" id="analyticsConnectionStatus">Connection status: —</div>
+                  <label class="field">
+                    <span class="field__label">Read-only snippet preview</span>
+                    <textarea class="field__input mono" id="analyticsSnippet" rows="5" dir="ltr" readonly></textarea>
+                  </label>
+                  <div class="hint" id="analyticsUpdatedAt"></div>
+                  <p class="hint">لن يتم حقن سكربتات GA/GTM إلا بعد موافقة الزائر على التحليلات (Cookie: atex.consent=analytics).</p>
+                </form>
+              </section>
+
+              <!-- Website Stats -->
+              <section class="page panel" data-page="website-stats" hidden>
+                <div class="panel__head">
+                  <div>
+                    <h1 class="panel__title">Website Stats</h1>
+                    <p class="panel__desc">إحصائيات زيارات الموقع + صفحات rec/*</p>
+                  </div>
+                  <div class="panel__actions">
+                    <button class="btn btn--ghost" type="button" data-range="7">7d</button>
+                    <button class="btn btn--ghost" type="button" data-range="30">30d</button>
+                    <button class="btn btn--ghost" type="button" data-range="90">90d</button>
+                    <select class="field__input" id="statsRange">
+                      <option value="7">آخر 7 أيام</option>
+                      <option value="30" selected>آخر 30 يوم</option>
+                      <option value="90">آخر 90 يوم</option>
+                    </select>
+                    <button class="btn btn--ghost" id="refreshStatsBtn" type="button">تحديث</button>
+                  </div>
+                </div>
+                <div class="hint" id="statsCompareHint"></div>
+
+                <div class="statsGrid">
+                  <div class="statCard"><div class="muted">Visits</div><div class="statCard__value" id="statTotal">-</div></div>
+                  <div class="statCard"><div class="muted">Uniques (after consent)</div><div class="statCard__value" id="statUniques">-</div></div>
+                  <div class="statCard"><div class="muted">Essential</div><div class="statCard__value" id="statEssential">-</div></div>
+                  <div class="statCard"><div class="muted">Analytics</div><div class="statCard__value" id="statAnalytics">-</div></div>
+                </div>
+
+                <div class="grid2" style="align-items:start">
+                  <div>
+                    <h3 style="margin:0 0 8px">Top URLs</h3>
+                    <div class="tableWrap">
+                      <table class="table" aria-label="أكثر الصفحات زيارة">
+                        <thead><tr><th>Path</th><th style="width:120px">Visits</th></tr></thead>
+                        <tbody id="topUrlsBody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 style="margin:0 0 8px">Daily trend</h3>
+                    <div class="trend" id="dailyTrend"></div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Leads scaffold -->
+              <section class="page panel" data-page="leads" hidden>
+                <h1 class="panel__title">Leads</h1>
+                <p class="panel__desc">قريباً — سيتم ربط نموذج التواصل وتخزين العملاء المحتملين.</p>
+                <div class="note">Empty state (scaffold only). لا توجد بيانات بعد.</div>
+              </section>
+
+              <!-- Products scaffold -->
+              <section class="page panel" data-page="products" hidden>
+                <div class="panel__head">
+                  <div>
+                    <h1 class="panel__title">Products</h1>
+                    <p class="panel__desc">إدارة كتالوج المنتجات المعروض في الصفحة الرئيسية.</p>
+                  </div>
+                  <div class="panel__actions">
+                    <button class="btn btn--primary" id="createProductBtn" type="button">+ منتج جديد</button>
+                    <button class="btn btn--ghost" id="refreshProductsBtn" type="button">تحديث</button>
+                  </div>
+                </div>
+
+                <div class="note" style="margin-bottom:10px">
+                  استيراد CSV: الأعمدة المدعومة هي
+                  <span dir="ltr">title, slug, category, description, image, brochure_url, published, sort_order</span>
+                </div>
+
+                <div class="actions" style="margin-bottom:12px">
+                  <input class="field__input" id="productsCsvFile" type="file" accept=".csv,text/csv" />
+                  <button class="btn btn--ghost" id="productsCsvImportBtn" type="button">استيراد CSV</button>
+                  <span class="status" id="productsCsvStatus" aria-live="polite"></span>
+                </div>
+
+                <div class="grid2" style="align-items:start">
+                  <div>
+                    <div class="tableTools">
+                      <input class="field__input" id="productsFilter" type="search" placeholder="فلترة بالاسم أو slug أو التصنيف" />
+                    </div>
+                    <div class="tableWrap">
+                      <table class="table" aria-label="قائمة المنتجات">
+                        <thead>
+                          <tr>
+                            <th style="width:72px">#</th>
+                            <th>العنوان</th>
+                            <th>التصنيف</th>
+                            <th dir="ltr">Slug</th>
+                            <th>الحالة</th>
+                          </tr>
+                        </thead>
+                        <tbody id="productsTableBody"></tbody>
+                      </table>
+                    </div>
+                    <div class="pager">
+                      <button class="btn btn--ghost" id="productsPrev" type="button">السابق</button>
+                      <span class="muted" id="productsPagerText"></span>
+                      <button class="btn btn--ghost" id="productsNext" type="button">التالي</button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="note" id="productEmptyEditor">اختر منتجاً من القائمة أو أنشئ منتجاً جديداً.</div>
+                    <form id="productEditor" class="editorForm" hidden>
+                      <input type="hidden" id="productId" />
+                      <div class="grid2">
+                        <label class="field">
+                          <span class="field__label">العنوان</span>
+                          <input class="field__input" id="productTitle" type="text" required />
+                        </label>
+                        <label class="field">
+                          <span class="field__label">Slug</span>
+                          <input class="field__input" id="productSlug" type="text" dir="ltr" required />
+                        </label>
+                        <label class="field">
+                          <span class="field__label">التصنيف</span>
+                          <input class="field__input" id="productCategory" type="text" />
+                        </label>
+                        <label class="field">
+                          <span class="field__label">الترتيب</span>
+                          <input class="field__input" id="productSortOrder" type="number" min="0" step="1" dir="ltr" />
+                        </label>
+                      </div>
+
+                      <label class="field">
+                        <span class="field__label">الوصف</span>
+                        <textarea class="field__input" id="productDescription" rows="4"></textarea>
+                      </label>
+
+                      <label class="field">
+                        <span class="field__label">رابط الصورة</span>
+                        <input class="field__input" id="productImage" type="text" dir="ltr" placeholder="https://... أو /uploads/..." />
+                      </label>
+
+                      <div class="actions" style="margin-top:0">
+                        <input class="field__input" id="productImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" />
+                        <button class="btn btn--ghost" id="productImageUploadBtn" type="button">رفع صورة المنتج</button>
+                        <span class="status" id="productImageUploadStatus" aria-live="polite"></span>
+                      </div>
+
+                      <label class="field">
+                        <span class="field__label">رابط الكتيّب (اختياري)</span>
+                        <input class="field__input" id="productBrochure" type="text" dir="ltr" placeholder="https://...pdf" />
+                      </label>
+
+                      <label class="toggle">
+                        <input type="checkbox" id="productPublished" />
+                        <span>منشور ويظهر في الموقع</span>
+                      </label>
+
+                      <div class="actions">
+                        <button class="btn btn--primary" id="saveProductBtn" type="submit">حفظ المنتج</button>
+                        <button class="btn btn--ghost" id="deleteProductBtn" type="button">حذف</button>
+                        <span class="status" id="productStatus"></span>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Categories scaffold -->
+              <section class="page panel" data-page="categories" hidden>
+                <h1 class="panel__title">Categories</h1>
+                <p class="panel__desc">قريباً — تصنيفات المنتجات.</p>
+                <div class="note">Empty state (scaffold only).</div>
+              </section>
+
+              <!-- Users scaffold -->
+              <section class="page panel" data-page="users" hidden>
+                <h1 class="panel__title">Users / Roles</h1>
+                <p class="panel__desc">Scaffold only — RBAC غير مطبق حالياً (Admin role فقط).</p>
+                <div class="note">Empty state (scaffold only).</div>
+              </section>
+
+              <!-- Settings scaffold -->
+              <section class="page panel" data-page="settings" hidden>
+                <div class="panel__head">
+                  <div>
+                    <h1 class="panel__title">Settings</h1>
+                    <p class="panel__desc">إعدادات عامة بشكل حديث وسريع الاستخدام.</p>
+                  </div>
+                </div>
+
+                <div class="settingsTabs" id="settingsTabs">
+                  <button class="btn btn--ghost settingsTab is-active" type="button" data-settings-tab="general">عام</button>
+                  <button class="btn btn--ghost settingsTab" type="button" data-settings-tab="seo">SEO</button>
+                  <button class="btn btn--ghost settingsTab" type="button" data-settings-tab="integrations">Integrations</button>
+                </div>
+
+                <form id="settingsForm" class="editorForm">
+                  <div class="settingsPane" data-settings-pane="general">
+                    <div class="grid2">
+                      <label class="field">
+                        <span class="field__label">اسم الشركة</span>
+                        <input class="field__input" id="settingsCompanyName" type="text" placeholder="ATEX" />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">البريد الإداري</span>
+                        <input class="field__input" id="settingsAdminEmail" type="email" dir="ltr" placeholder="admin@atex.sa" />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">رقم واتساب افتراضي</span>
+                        <input class="field__input" id="settingsWhatsapp" type="text" dir="ltr" placeholder="9665xxxxxxx" />
+                      </label>
+                      <label class="toggle">
+                        <input type="checkbox" id="settingsMaintenanceMode" />
+                        <span>وضع الصيانة (إعلام داخلي فقط حالياً)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="settingsPane" data-settings-pane="seo" hidden>
+                    <div class="grid2">
+                      <label class="field">
+                        <span class="field__label">عنوان الصفحة الرئيسية</span>
+                        <input class="field__input" id="settingsHomepageTitle" type="text" />
+                      </label>
+                      <label class="field">
+                        <span class="field__label">وصف الصفحة الرئيسية</span>
+                        <textarea class="field__input" id="settingsHomepageDescription" rows="3"></textarea>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="settingsPane" data-settings-pane="integrations" hidden>
+                    <div class="note">للتحليلات المتقدمة (GA/GTM) استخدم صفحة <strong>Analytics</strong>. هذه الصفحة تجمع أهم الإعدادات العامة.</div>
+                  </div>
+
+                  <div class="actions">
+                    <button class="btn btn--primary" type="submit">حفظ الإعدادات</button>
+                    <span class="status" id="settingsStatus"></span>
+                  </div>
+                </form>
+              </section>
+            </div>
+
+            <aside class="layout__help" id="contextHelp" hidden></aside>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="commandPalette" id="commandPalette" hidden>
+      <div class="commandPalette__backdrop" data-close-palette></div>
+      <div class="commandPalette__panel">
+        <input class="field__input" id="commandPaletteInput" placeholder="اكتب اسم الصفحة أو الإجراء..." />
+        <div id="commandPaletteResults"></div>
+      </div>
+    </div>
+
+    <div class="toastStack" id="toastStack" aria-live="polite"></div>
+
+    <script src="/admin/admin.js"></script>
+  </body>
+</html>

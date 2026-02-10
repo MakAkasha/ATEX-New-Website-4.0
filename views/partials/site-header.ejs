@@ -1,0 +1,58 @@
+<!-- Top bar -->
+<% const __homeContent = (typeof content !== 'undefined') ? content : null; %>
+<% const __topbarPhone = '+966580102121'; %>
+<% const __topbarWhatsapp = 'https://wa.me/966580102121'; %>
+<div class="topbar">
+  <div class="container topbar__inner">
+    <div class="topbar__item">
+      <lord-icon class="icon-lord" src="https://cdn.lordicon.com/lenjvibx.json" trigger="hover" colors="primary:#ffffff,secondary:#ffcc99" aria-hidden="true"></lord-icon>
+      <span>
+        <%= (__homeContent?.topbar?.supportText || 'الدعم والمبيعات:') %>
+        <a href="<%= __topbarWhatsapp %>" target="_blank" rel="noopener noreferrer" dir="ltr"><strong><%= __topbarPhone %></strong></a>
+      </span>
+    </div>
+    <div class="topbar__item">
+      <span><%= (__homeContent?.topbar?.tagline || 'حلول إنترنت الأشياء للشركات داخل المملكة') %></span>
+      <a class="topbar__textLink" href="<%= (__homeContent?.topbar?.ctaHref || '#contact') %>" target="_blank" rel="noopener noreferrer">
+        <span><%= (__homeContent?.topbar?.ctaText || 'اطلب عرضاً') %></span>
+        <span class="topbar__extIcon" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<header class="header" id="home">
+  <div class="container header__inner">
+    <!-- Brand on LEFT (requested) -->
+    <a class="brand" href="/" aria-label="الانتقال إلى الرئيسية">
+      <img class="brand__logoImg" src="/assets/ATEX-logo.svg" alt="ATEX" />
+    </a>
+
+    <nav class="nav" aria-label="التنقّل الرئيسي">
+      <div class="nav__backdrop" data-nav-backdrop aria-hidden="true"></div>
+      <button
+        class="nav__toggle"
+        type="button"
+        aria-label="فتح القائمة"
+        aria-expanded="false"
+        aria-controls="navMenu">
+        <span class="nav__toggleLines" aria-hidden="true"></span>
+      </button>
+
+      <div class="nav__menu" id="navMenu">
+        <a class="nav__link" data-scrollspy href="/#solutions">الحلول</a>
+        <a class="nav__link" data-scrollspy href="/#platform">المنصة</a>
+        <a class="nav__link" data-scrollspy href="/#industries">القطاعات</a>
+        <a class="nav__link" data-scrollspy href="/#why">لماذا ATEX</a>
+        <a class="nav__link" data-scrollspy href="/#process">كيف نعمل</a>
+        <a class="nav__link" data-scrollspy href="/#integrations">التكاملات</a>
+        <a class="nav__link" data-scrollspy href="/#faq">الأسئلة</a>
+        <a class="nav__link" data-scrollspy href="/#products">المنتجات</a>
+        <a class="nav__link" href="/blog">المدونة</a>
+        <a class="nav__link" data-scrollspy href="/#contact">تواصل معنا</a>
+        <a class="btn btn--primary btn--small" href="/#contact">اطلب عرضاً</a>
+      </div>
+    </nav>
+  </div>
+</header>

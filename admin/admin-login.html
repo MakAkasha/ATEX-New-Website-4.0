@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ATEX | دخول الإدارة</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/admin/admin.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card" aria-label="تسجيل الدخول للإدارة">
+        <div class="brand">
+          <div class="brand__logo"><span>AT</span><span class="accent">EX</span></div>
+          <div class="brand__tag">لوحة الإدارة</div>
+        </div>
+
+        <h1 class="title">تسجيل الدخول</h1>
+        <p class="desc">الدخول مخصص لمسؤول الموقع لإدارة الصفحة الرئيسية والمحتوى.</p>
+        <p class="hint" id="loginInfo"></p>
+
+        <form id="loginForm" class="form" autocomplete="on">
+          <label class="field">
+            <span class="field__label">اسم المستخدم</span>
+            <input
+              class="field__input"
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              placeholder="اكتب اسم المستخدم هنا"
+              autofocus
+              required
+            />
+          </label>
+          <label class="field">
+            <span class="field__label">كلمة المرور</span>
+            <input
+              class="field__input"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="اكتب كلمة المرور هنا"
+              required
+            />
+            <span class="hint" id="capsHint" hidden>تحذير: زر Caps Lock مفعّل</span>
+          </label>
+          <label class="toggle" style="margin-top:0">
+            <input type="checkbox" id="togglePassword" />
+            <span>إظهار كلمة المرور</span>
+          </label>
+          <button class="btn btn--primary" type="submit">دخول</button>
+          <p class="error" id="errorBox" hidden></p>
+          <p class="hint">إذا لم يتم إنشاء المستخدم بعد، شغّل سكربت إنشاء الأدمن محلياً.</p>
+        </form>
+      </section>
+    </main>
+
+    <script src="/admin/admin.js"></script>
+  </body>
+</html>

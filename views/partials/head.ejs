@@ -1,0 +1,41 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title><%= meta?.title || "ATEX" %></title>
+<meta name="description" content="<%= meta?.description || "" %>" />
+
+<link rel="icon" href="data:," />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
+<link rel="stylesheet" href="/assets/css/styles.css" />
+
+<% const __consent = (typeof consent !== 'undefined') ? consent : 'unknown'; %>
+<% const __analytics = (typeof analytics !== 'undefined') ? analytics : null; %>
+
+<% if (__consent === 'analytics' && __analytics && __analytics.enabled) { %>
+  <% if (__analytics.gtmContainerId) { %>
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','<%= __analytics.gtmContainerId %>');
+    </script>
+    <!-- End Google Tag Manager -->
+  <% } %>
+
+  <% if (__analytics.gaMeasurementId) { %>
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= __analytics.gaMeasurementId %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);} 
+      gtag('js', new Date());
+      gtag('config', '<%= __analytics.gaMeasurementId %>');
+    </script>
+  <% } %>
+<% } %>
