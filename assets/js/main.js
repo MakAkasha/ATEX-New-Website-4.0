@@ -20,29 +20,16 @@ function initNav() {
   const backdrop = qs("[data-nav-backdrop]");
   if (!toggle || !menu) return;
 
-  // Use GSAP for a premium open/close on mobile (fallback to class toggle)
-  const canGsap = !prefersReducedMotion && window.gsap;
-  let tl;
-  if (canGsap) {
-    const gsap = window.gsap;
-    tl = gsap.timeline({ paused: true });
-    tl.set(menu, { opacity: 0, y: -10, pointerEvents: "none" });
-    tl.to(menu, { opacity: 1, y: 0, duration: 0.28, ease: "power2.out", pointerEvents: "auto" });
-    tl.from(qsa(".nav__link, .btn", menu), { opacity: 0, y: 8, duration: 0.22, ease: "power2.out", stagger: 0.04 }, "<");
-  }
-
   const close = () => {
     menu.classList.remove("is-open");
     document.body.classList.remove("nav-open");
     toggle.setAttribute("aria-expanded", "false");
-    if (tl) tl.reverse();
   };
 
   const open = () => {
     menu.classList.add("is-open");
     document.body.classList.add("nav-open");
     toggle.setAttribute("aria-expanded", "true");
-    if (tl) tl.play(0);
   };
 
   toggle.addEventListener("click", () => {
@@ -152,6 +139,90 @@ function initScrollSpy() {
   if (first) setActive(first.id);
 }
 
+function initMarquee() {
+  const marquees = qsa("[data-marquee]");
+  if (!marquees.length) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const setupMarquee = (root) => {
+    const viewport = qs("[data-marquee-viewport]", root);
+    const runner = qs("[data-marquee-runner]", root);
+    const source = qs("[data-marquee-content]", root);
+    if (!viewport || !runner || !source) return;
+
+    // Remove generated clones before re-measuring
+    qsa("[data-marquee-clone]", runner).forEach((node) => node.remove());
+
+    root.classList.remove("is-static");
+
+    const sourceWidth = source.getBoundingClientRect().width;
+    const viewportWidth = viewport.getBoundingClientRect().width;
+
+    if (!sourceWidth || !viewportWidth) {
+      root.classList.add("is-static");
+      return;
+    }
+
+    // Always append at least one clone, then keep cloning until the runner
+    // is long enough to cover viewport during the whole one-block travel.
+    // Seamless condition when animating by sourceWidth:
+    // runnerWidth >= viewportWidth + sourceWidth
+    const minWidth = viewportWidth + sourceWidth;
+    const maxClones = 32;
+    let cloneCount = 0;
+
+    while ((runner.scrollWidth < minWidth || cloneCount === 0) && cloneCount < maxClones) {
+      const clone = source.cloneNode(true);
+      clone.setAttribute("data-marquee-clone", "true");
+      clone.setAttribute("aria-hidden", "true");
+      runner.appendChild(clone);
+      cloneCount += 1;
+    }
+
+    // Pixel-distance animation: move exactly one source content width
+    root.style.setProperty("--marquee-distance", `${sourceWidth.toFixed(3)}px`);
+
+    // Optional dynamic duration based on px/s speed
+    const pxPerSecond = 90;
+    const duration = Math.max(8, sourceWidth / pxPerSecond);
+    root.style.setProperty("--marquee-duration", `${duration}s`);
+
+    // Restart CSS animation after recalculation so new distance applies immediately
+    runner.style.animation = "none";
+    // Force reflow
+    void runner.offsetWidth;
+    runner.style.animation = "";
+
+    if (reduceMotion) {
+      root.classList.add("is-static");
+    }
+  };
+
+  const rebuildAll = () => marquees.forEach(setupMarquee);
+
+  // Initial build
+  rebuildAll();
+
+  // Rebuild after fonts load (important for accurate Arabic widths)
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(rebuildAll).catch(() => {});
+  }
+
+  // Rebuild on resize (debounced)
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(rebuildAll, 120);
+  });
+
+  // Explicit hover pause class support
+  marquees.forEach((root) => {
+    root.addEventListener("mouseenter", () => root.classList.add("is-paused"));
+    root.addEventListener("mouseleave", () => root.classList.remove("is-paused"));
+  });
+}
+
 function initFaq() {
   // Fallback behavior when GSAP isn't available.
   // If GSAP is present, we do a richer height animation inside initGsap().
@@ -174,6 +245,139 @@ function initFaq() {
       });
       item.classList.toggle("is-open", !isOpen);
       if (icon) icon.textContent = item.classList.contains("is-open") ? "–" : "+";
+    });
+  });
+}
+
+function initContactForm() {
+  const form = qs("#contactForm");
+  if (!form) return;
+
+  const note = qs("[data-contact-note]", form);
+  const submitBtn = qs("[data-contact-submit]", form);
+  const nameInput = qs('input[name="name"]', form);
+  const emailInput = qs('input[name="email"]', form);
+  const messageInput = qs('textarea[name="message"]', form);
+
+  const inputs = [nameInput, emailInput, messageInput].filter(Boolean);
+
+  const setNote = (text, type = "info") => {
+    if (!note) return;
+    note.textContent = text;
+    note.classList.remove("is-error", "is-success", "is-info");
+    note.classList.add(`is-${type}`);
+  };
+
+  const clearInputState = () => {
+    inputs.forEach((el) => el.classList.remove("is-invalid"));
+  };
+
+  const markInvalid = (el) => {
+    if (!el) return;
+    el.classList.add("is-invalid");
+  };
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").toLowerCase());
+
+  const validate = () => {
+    clearInputState();
+
+    const name = String(nameInput?.value || "").trim();
+    const email = String(emailInput?.value || "").trim();
+    const message = String(messageInput?.value || "").trim();
+
+    if (name.length < 2) {
+      markInvalid(nameInput);
+      setNote("يرجى إدخال اسم صحيح (حرفين على الأقل).", "error");
+      return null;
+    }
+
+    if (!isValidEmail(email)) {
+      markInvalid(emailInput);
+      setNote("يرجى إدخال بريد إلكتروني صحيح.", "error");
+      return null;
+    }
+
+    if (message.length < 10) {
+      markInvalid(messageInput);
+      setNote("يرجى كتابة وصف أوضح للمشروع (10 أحرف على الأقل).", "error");
+      return null;
+    }
+
+    return {
+      name: name.slice(0, 120),
+      email: email.slice(0, 160),
+      message: message.slice(0, 3000),
+    };
+  };
+
+  const mapServerError = (code) => {
+    switch (code) {
+      case "MISSING_FIELDS":
+        return "يرجى تعبئة جميع الحقول المطلوبة.";
+      case "INVALID_NAME":
+        return "الاسم المدخل غير صالح.";
+      case "INVALID_EMAIL":
+        return "البريد الإلكتروني غير صالح.";
+      case "MESSAGE_TOO_SHORT":
+        return "الرسالة قصيرة جدًا. يرجى إضافة تفاصيل أكثر.";
+      default:
+        return "تعذر إرسال النموذج حالياً. حاول مرة أخرى.";
+    }
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (submitBtn?.disabled) return;
+
+    const payload = validate();
+    if (!payload) return;
+
+    const originalBtnText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "جاري الإرسال...";
+    }
+    setNote("جاري إرسال طلبك...", "info");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        let errorCode = "SERVER_ERROR";
+        try {
+          const data = await res.json();
+          errorCode = data?.error || errorCode;
+        } catch {
+          // Keep default error
+        }
+        setNote(mapServerError(errorCode), "error");
+        return;
+      }
+
+      form.reset();
+      clearInputState();
+      setNote("تم استلام طلبك بنجاح ✅ سنقوم بالتواصل معك قريباً.", "success");
+    } catch {
+      setNote("تعذر الاتصال بالخادم حالياً. يرجى المحاولة لاحقاً.", "error");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText || "إرسال";
+      }
+    }
+  });
+
+  inputs.forEach((el) => {
+    el.addEventListener("input", () => {
+      el.classList.remove("is-invalid");
+      if (note?.classList.contains("is-error")) {
+        setNote("سنقوم بالتواصل معك في أقرب وقت ممكن.", "info");
+      }
     });
   });
 }
@@ -481,6 +685,8 @@ async function bootstrap() {
   initNav();
   initFaq();
   initScrollSpy();
+  initMarquee();
+  initContactForm();
 
   // Data-driven render
   try {

@@ -12,8 +12,6 @@
       const __heroVideoSourceType = __heroVideoCfg.sourceType === 'upload' ? 'upload' : 'youtube';
       const __heroVideoYoutubeUrl = __heroVideoCfg.youtubeUrl || 'https://www.youtube.com/watch?v=xwYbULh3aRE';
       const __heroVideoUploadedUrl = __heroVideoCfg.uploadedVideoUrl || '';
-      const __heroVideoPoster = '/assets/hero/rooms.png';
-
       function __extractYouTubeId(url){
         if (!url) return '';
         const s = String(url).trim();
@@ -33,7 +31,7 @@
       <section class="heroVideo" aria-label="IoT Hero">
         <div class="heroVideo__media" aria-hidden="true">
           <% if (__heroVideoSourceType === 'upload' && __heroVideoUploadedUrl) { %>
-            <video autoplay muted loop playsinline preload="metadata" poster="<%= __heroVideoPoster %>">
+            <video autoplay muted loop playsinline preload="metadata">
               <source src="<%= __heroVideoUploadedUrl %>" type="video/mp4" />
             </video>
           <% } else if (__heroVideoYoutubeId) { %>
@@ -45,7 +43,7 @@
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen></iframe>
           <% } else { %>
-            <video autoplay muted loop playsinline preload="metadata" poster="<%= __heroVideoPoster %>">
+            <video autoplay muted loop playsinline preload="metadata">
               <source src="https://cdn.coverr.co/videos/coverr-smart-city-overview-1579/1080p.mp4" type="video/mp4" />
             </video>
           <% } %>
@@ -64,29 +62,10 @@
       <section class="hero" id="atex-overview" aria-label="ATEX Overview">
         <div class="container hero__inner">
           <div class="hero__copy">
-            <div class="hero__sectionLabel">ATEX Overview</div>
-            <div class="kicker">
-              <span class="kicker__dot" aria-hidden="true"></span>
-              <%= content?.hero?.kicker || "بيانات لحظية • تنبيهات ذكية • قرارات أسرع" %>
-            </div>
-
-            <h1 class="hero__title"><%= content?.hero?.title || "نحوّل أصولك وعملياتك إلى بيانات قابلة للتنفيذ" %></h1>
+            <h1 class="hero__title"><%= content?.hero?.title || "أتكس… مباني أذكى" %></h1>
             <p class="hero__desc">
-              <%= content?.hero?.desc || "ATEX شركة سعودية تقدّم حلول إنترنت الأشياء للشركات—من الأجهزة والاتصال إلى المنصة والتحليلات— لتتبّع الأصول، إدارة الأساطيل، المراقبة البيئية، وسلسلة التبريد." %>
+              <%= content?.hero?.desc || "نحوّل المنازل والفنادق والمباني إلى منظومة متصلة تُظهر لك ما يحدث الآن وتُمكّنك من التحكم بكل التفاصيل بسهولة.\nمن الأجهزة والاتصال إلى المنصة, لتشغيل الإضاءة والتكييف والطاقة والمشاهد، إدارة الغرف والوصول الذكي، ورفع الكفاءة وتقليل التكاليف مع تجربة ضيوف وسكان أكثر رفاهية." %>
             </p>
-
-            <div class="hero__actions">
-              <a class="btn btn--primary" href="#contact">
-                <%= content?.hero?.ctaPrimary || "اطلب عرضاً" %>
-                <lord-icon
-                  class="icon-lord icon-lord--arrow"
-                  src="https://cdn.lordicon.com/dxjqoygy.json"
-                  trigger="hover"
-                  colors="primary:#0b1f2a,secondary:#ff9933"
-                  aria-hidden="true"></lord-icon>
-              </a>
-              <a class="btn btn--ghost" href="#platform"><%= content?.hero?.ctaSecondary || "استعرض المنصة" %></a>
-            </div>
 
             <div class="hero__trust" aria-label="مزايا سريعة">
               <div class="pill"><lord-icon class="icon-lord" src="https://cdn.lordicon.com/ueoydrft.json" trigger="hover" colors="primary:#002b44,secondary:#ff9933" aria-hidden="true"></lord-icon> أمان مؤسسي</div>
@@ -291,20 +270,16 @@
             <p>منصات وتقنيات الاتصال والتكامل والتحليلات المستخدمة في حلول إنترنت الأشياء.</p>
           </div>
 
-          <div class="marquee" aria-label="شريط تكاملات">
-            <% const chips = ['Wi-Fi 7', 'WPA3', 'بلوتوث 5.4', 'Zigbee 3.0', 'Thread 1.4', 'Matter 1.5', 'LoRaWAN 1.1', 'NB-IoT', 'LTE-M / eMTC', 'MQTT 5.0', 'CoAP 1.0', 'HTTP/3', 'QUIC v1', 'RTSP 2.0', 'PoE IEEE 802.3bt', 'TLS 1.3']; %>
-            <div class="marquee__rail">
-              <div class="marquee__track">
-                <% chips.forEach(function(label, idx){ %>
-                  <span class="marquee__text"><%= label %></span>
-                  <% if (idx < chips.length - 1) { %><span class="marquee__sep" aria-hidden="true">|</span><% } %>
-                <% }) %>
-              </div>
-              <div class="marquee__track" aria-hidden="true">
-                <% chips.forEach(function(label, idx){ %>
-                  <span class="marquee__text"><%= label %></span>
-                  <% if (idx < chips.length - 1) { %><span class="marquee__sep" aria-hidden="true">|</span><% } %>
-                <% }) %>
+          <% const chips = ['Wi-Fi 7', 'WPA3', 'بلوتوث 5.4', 'Zigbee 3.0', 'Thread 1.4', 'Matter 1.5', 'LoRaWAN 1.1', 'NB-IoT', 'LTE-M / eMTC', 'MQTT 5.0', 'CoAP 1.0', 'HTTP/3', 'QUIC v1', 'RTSP 2.0', 'PoE IEEE 802.3bt', 'TLS 1.3']; %>
+          <div class="marquee" data-marquee aria-label="شريط تكاملات">
+            <div class="marquee__viewport" data-marquee-viewport>
+              <div class="marquee__runner" data-marquee-runner>
+                <div class="marquee__content" data-marquee-content>
+                  <% chips.forEach(function(label, idx){ %>
+                    <span class="marquee__text"><%= label %></span>
+                    <% if (idx < chips.length - 1) { %><span class="marquee__sep" aria-hidden="true">|</span><% } %>
+                  <% }) %>
+                </div>
               </div>
             </div>
           </div>
@@ -398,21 +373,21 @@
                   allowfullscreen></iframe>
               </div>
             </div>
-            <form class="cta__form" autocomplete="on" aria-label="نموذج تواصل (تجريبي)">
+            <form class="cta__form" id="contactForm" autocomplete="on" aria-label="نموذج تواصل">
               <label class="field">
                 <span class="field__label">الاسم</span>
-                <input class="field__input" name="name" type="text" placeholder="اكتب اسمك" />
+                <input class="field__input" name="name" type="text" placeholder="اكتب اسمك" required minlength="2" />
               </label>
               <label class="field">
                 <span class="field__label">البريد الإلكتروني</span>
-                <input class="field__input" name="email" type="email" placeholder="name@company.com" dir="ltr" />
+                <input class="field__input" name="email" type="email" placeholder="name@company.com" dir="ltr" required />
               </label>
               <label class="field">
                 <span class="field__label">وصف مختصر للمشروع</span>
-                <textarea class="field__input" name="message" rows="4" placeholder="تتبّع أصول / سلسلة تبريد / عدادات…"></textarea>
+                <textarea class="field__input" name="message" rows="4" placeholder="تتبّع أصول / سلسلة تبريد / عدادات…" required minlength="10"></textarea>
               </label>
-              <button class="btn btn--primary" type="button">إرسال (تجريبي)</button>
-              <p class="formNote">سيتم ربط الإرسال لاحقاً بخدمة بريد/نظام تذاكر أو لوحة الإدارة.</p>
+              <button class="btn btn--primary" type="submit" data-contact-submit>إرسال</button>
+              <p class="formNote" data-contact-note>سنقوم بالتواصل معك في أقرب وقت ممكن.</p>
             </form>
           </div>
         </div>

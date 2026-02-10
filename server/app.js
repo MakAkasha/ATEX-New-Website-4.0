@@ -11,6 +11,7 @@ const postsRoutes = require("./routes/posts");
 const productsRoutes = require("./routes/products");
 const uploadsRoutes = require("./routes/uploads");
 const trackingRoutes = require("./routes/tracking");
+const contactRoutes = require("./routes/contact");
 const { router: customPagesRoutes } = require("./routes/customPages");
 const { router: settingsRoutes } = require("./routes/settings");
 const pagesRoutes = require("./routes/pages");
@@ -82,6 +83,7 @@ app.use("/api/uploads", uploadsRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/custom-pages", customPagesRoutes);
 app.use("/api/track", trackingRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Pages (SSR later; currently sends static HTML files)
 app.use(pagesRoutes);
