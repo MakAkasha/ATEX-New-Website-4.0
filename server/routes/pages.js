@@ -136,6 +136,42 @@ router.get("/blog/:slug", (req, res) => {
   });
 });
 
+// Solutions page
+router.get("/solutions", (req, res) => {
+  const content = loadHomeContent();
+  const solutions = [
+    { title: "أنظمة المنازل الذكية", desc: "تحكم مركزي بالإضاءة والتكييف والطاقة والمشاهد اليومية." },
+    { title: "أنظمة المكاتب الذكية", desc: "رفع الإنتاجية وكفاءة التشغيل عبر أتمتة بيئة العمل." },
+    { title: "أنظمة الفنادق الذكية", desc: "تجربة ضيافة حديثة مع إدارة متكاملة للغرف والخدمات." },
+    { title: "أنظمة إدارة المباني (BMS)", desc: "مراقبة وتحكم موحد في الأنظمة الحيوية للمبنى." },
+    { title: "الأنظمة الأمنية", desc: "تكامل المراقبة والتحكم بالوصول والتنبيهات الذكية." },
+    { title: "أنظمة شحن المركبات الكهربائية", desc: "بنية شحن موثوقة وقابلة للتوسع للمشاريع الحديثة." },
+  ];
+
+  return res.render("solutions", {
+    content,
+    solutions,
+    ...baseRenderData(req),
+    meta: {
+      title: "ATEX | الأنظمة والحلول",
+      description: "استكشف الأنظمة والحلول الذكية التي تقدمها أتكس لقطاعات الأعمال داخل السعودية.",
+    },
+  });
+});
+
+// Contact us page
+router.get("/contact-us", (req, res) => {
+  const content = loadHomeContent();
+  return res.render("contact-us", {
+    content,
+    ...baseRenderData(req),
+    meta: {
+      title: "ATEX | تواصل معنا",
+      description: "تواصل مع فريق أتكس للحصول على استشارة وحلول تقنية تناسب مشروعك.",
+    },
+  });
+});
+
 // Custom pages (public)
 router.get("/rec/:slug", (req, res) => {
   const slug = String(req.params.slug || "");

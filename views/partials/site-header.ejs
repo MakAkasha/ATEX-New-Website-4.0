@@ -5,7 +5,6 @@
 <div class="topbar">
   <div class="container topbar__inner">
     <div class="topbar__item">
-      <lord-icon class="icon-lord" src="https://cdn.lordicon.com/lenjvibx.json" trigger="hover" colors="primary:#ffffff,secondary:#ffcc99" aria-hidden="true"></lord-icon>
       <span>
         <%= (__homeContent?.topbar?.supportText || 'الدعم والمبيعات:') %>
         <a href="<%= __topbarWhatsapp %>" target="_blank" rel="noopener noreferrer" dir="ltr"><strong><%= __topbarPhone %></strong></a>
@@ -24,7 +23,7 @@
 <!-- Navbar -->
 <header class="header" id="home">
   <div class="container header__inner">
-    <!-- Brand on LEFT (requested) -->
+    <!-- Brand + nav grouped on RIGHT -->
     <a class="brand" href="/" aria-label="الانتقال إلى الرئيسية">
       <img class="brand__logoImg" src="/assets/ATEX-logo.svg" alt="ATEX" />
     </a>
@@ -41,17 +40,14 @@
       </button>
 
       <div class="nav__menu" id="navMenu">
-        <a class="nav__link" data-scrollspy href="/#solutions">الحلول</a>
-        <a class="nav__link" data-scrollspy href="/#platform">المنصة</a>
-        <a class="nav__link" data-scrollspy href="/#industries">القطاعات</a>
-        <a class="nav__link" data-scrollspy href="/#why">لماذا ATEX</a>
-        <a class="nav__link" data-scrollspy href="/#process">كيف نعمل</a>
-        <a class="nav__link" data-scrollspy href="/#integrations">التكاملات</a>
-        <a class="nav__link" data-scrollspy href="/#faq">الأسئلة</a>
-        <a class="nav__link" data-scrollspy href="/#products">المنتجات</a>
-        <a class="nav__link" href="/blog">المدونة</a>
-        <a class="nav__link" data-scrollspy href="/#contact">تواصل معنا</a>
-        <a class="btn btn--primary btn--small" href="https://portal.atex-ksa.com" target="_blank" rel="noopener noreferrer">بوابة العملاء</a>
+        <a class="nav__link" data-route href="/">الرئيسية</a>
+        <a class="nav__link" data-route href="/solutions">الأنظمة والحلول</a>
+        <a class="nav__link" data-route href="/blog">المدونة</a>
+        <a class="nav__link" data-route href="/contact-us">تواصل معنا</a>
+        <a class="btn btn--primary btn--small" href="https://portal.atex-ksa.com" target="_blank" rel="noopener noreferrer" dir="rtl">
+          <span class="nav__extIcon" aria-hidden="true">↗</span>
+          <span>بوابة العملاء</span>
+        </a>
       </div>
     </nav>
   </div>

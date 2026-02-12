@@ -97,9 +97,21 @@ function initHeaderMotion() {
 }
 
 function initScrollSpy() {
-  const links = qsa("a.nav__link[data-scrollspy]");
-  if (!links.length) return;
-  const sections = links
+  const routeLinks = qsa("a.nav__link[data-route]");
+  const scrollLinks = qsa("a.nav__link[data-scrollspy]");
+
+  // Route-based active state (for multi-page nav)
+  if (routeLinks.length) {
+    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    routeLinks.forEach((a) => {
+      const href = (a.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+      const isActive = href === "/" ? currentPath === "/" : currentPath === href;
+      a.classList.toggle("is-active", isActive);
+    });
+  }
+
+  if (!scrollLinks.length) return;
+  const sections = scrollLinks
     .map((a) => {
       const href = a.getAttribute("href") || "";
       const id = href.includes("#") ? href.split("#")[1] : "";
@@ -111,7 +123,7 @@ function initScrollSpy() {
   if (!sections.length) return;
 
   const setActive = (id) => {
-    links.forEach((a) => a.classList.remove("is-active"));
+    scrollLinks.forEach((a) => a.classList.remove("is-active"));
     const match = sections.find((s) => s.id === id);
     if (match) match.a.classList.add("is-active");
   };

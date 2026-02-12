@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <%- include('partials/head', { meta }) %>
+    <style>
+      .page { padding: 44px 0 70px; }
+      .solutionsGrid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      @media (max-width: 980px) { .solutionsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 760px) { .solutionsGrid { grid-template-columns: 1fr; } }
+      .solutionItem {
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 16px;
+        background: rgba(255,255,255,0.82);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+        padding: 16px;
+      }
+      .solutionItem h3 { margin: 0 0 6px; color: #002b44; }
+      .solutionItem p { margin: 0; font-weight: 700; color: rgba(11,31,42,0.72); }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/site-header', { content }) %>
+
+    <main class="page">
+      <div class="container">
+        <div class="section__head">
+          <h2>الأنظمة والحلول</h2>
+          <p>حلول ذكية مصممة لدعم التشغيل، الكفاءة، والتوسع في مختلف القطاعات.</p>
+        </div>
+
+        <div class="solutionsGrid">
+          <% (solutions || []).forEach(function(s){ %>
+            <article class="solutionItem" data-tilt>
+              <h3><%= s.title %></h3>
+              <p><%= s.desc %></p>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/site-footer', { content }) %>
+  </body>
+</html>

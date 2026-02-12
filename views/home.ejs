@@ -58,6 +58,43 @@
         </div>
       </section>
 
+      <!-- Trust strip -->
+      <section class="trustStrip" aria-label="مؤشرات الثقة">
+        <div class="container trustStrip__inner">
+          <article class="trustStrip__item" data-tilt>
+            <span class="trustStrip__icon" aria-hidden="true">
+              <lord-icon class="icon-lord" src="https://cdn.lordicon.com/msoeawqm.json" trigger="hover" colors="primary:#002b44,secondary:#ff9933"></lord-icon>
+            </span>
+            <strong>+43</strong>
+            <span>مشروع تم تنفيذه بنجاح</span>
+          </article>
+
+          <article class="trustStrip__item" data-tilt>
+            <span class="trustStrip__icon" aria-hidden="true">
+              <lord-icon class="icon-lord" src="https://cdn.lordicon.com/abfverha.json" trigger="hover" colors="primary:#002b44,secondary:#ff9933"></lord-icon>
+            </span>
+            <strong>24/7</strong>
+            <span>متابعة وتشغيل ودعم مستمر</span>
+          </article>
+
+          <article class="trustStrip__item" data-tilt>
+            <span class="trustStrip__icon" aria-hidden="true">
+              <lord-icon class="icon-lord" src="https://cdn.lordicon.com/rsvfayfn.json" trigger="hover" colors="primary:#002b44,secondary:#ff9933"></lord-icon>
+            </span>
+            <strong>+4</strong>
+            <span>سنوات خبرة ميدانية في المملكة</span>
+          </article>
+
+          <article class="trustStrip__item" data-tilt>
+            <span class="trustStrip__icon" aria-hidden="true">
+              <lord-icon class="icon-lord" src="https://cdn.lordicon.com/fikcyfpp.json" trigger="hover" colors="primary:#002b44,secondary:#ff9933"></lord-icon>
+            </span>
+            <strong>100%</strong>
+            <span>التزام واضح بجودة مستوى الخدمة</span>
+          </article>
+        </div>
+      </section>
+
       <!-- ATEX Overview -->
       <section class="hero" id="atex-overview" aria-label="ATEX Overview">
         <div class="container hero__inner">
@@ -118,7 +155,10 @@
             { iconSrc: 'https://cdn.lordicon.com/dxjqoygy.json', bg: '/assets/solutions/smart-ligting.jpg', title: 'أنظمة إضاءة الواجهات الخارجية', desc: 'حلول إضاءة واجهات احترافية تُبرز الهوية المعمارية.' },
             { iconSrc: 'https://cdn.lordicon.com/rsvfayfn.json', bg: '/assets/solutions/central-vacuum.jpg', title: 'نظام المكنسة المركزية', desc: 'تنظيف أكثر راحة وكفاءة عبر نظام مركزي عملي.' },
             { iconSrc: 'https://cdn.lordicon.com/ueoydrft.json', bg: '/assets/solutions/smart-led-screen.jpg', title: 'شاشات LED الداخلية والخارجية', desc: 'شاشات عرض عالية التأثير للاستخدام الداخلي والخارجي.' },
-            { iconSrc: 'https://cdn.lordicon.com/fikcyfpp.json', bg: '/assets/solutions/ev-charging.jpg', title: 'أنظمة شحن المركبات الكهربائية (EV Chargers)', desc: 'بنية شحن موثوقة وقابلة للتوسع للمركبات الكهربائية.' }
+            { iconSrc: 'https://cdn.lordicon.com/fikcyfpp.json', bg: '/assets/solutions/ev-charging.jpg', title: 'أنظمة شحن المركبات الكهربائية (EV Chargers)', desc: 'بنية شحن موثوقة وقابلة للتوسع للمركبات الكهربائية.' },
+            { iconSrc: 'https://cdn.lordicon.com/hrjifpbq.json', bg: '/assets/solutions/smart-office.jpg', title: 'أنظمة تقنية المعلومات والاتصالات', desc: 'بنية اتصالات وشبكات مؤسسية متكاملة تدعم التشغيل الذكي.' },
+            { iconSrc: 'https://cdn.lordicon.com/dxjqoygy.json', bg: '/assets/solutions/smart-ligting.jpg', title: 'أنظمة التحكم بالإضاءة', desc: 'إدارة ذكية لمشاهد الإضاءة وتوفير الطاقة عبر جداول وأتمتة.' },
+            { iconSrc: 'https://cdn.lordicon.com/lenjvibx.json', bg: '/assets/solutions/smart-building.jpg', title: 'الأنظمة الأمنية', desc: 'مراقبة وحماية متقدمة مع تكامل أنظمة الإنذار والتحكم بالوصول.' }
           ]; %>
 
           <div class="grid grid--cards">
@@ -172,48 +212,50 @@
       </section>
 
       <!-- Industries -->
-      <section class="section" id="industries">
+      <section class="section industriesShowcase" id="industries">
         <div class="container">
           <div class="section__head">
             <h2>القطاعات التي نخدمها في المملكة</h2>
-            <p>حلول إنترنت الأشياء من ATEX مصممة لقطاعات حيوية في السعودية مع متطلبات تشغيل وأمان عالية.</p>
+            <p>نصمم حلولًا قابلة للتوسع حسب طبيعة كل قطاع لضمان تشغيل ذكي، كفاءة أعلى، وتجربة أفضل.</p>
           </div>
 
-          <div class="grid grid--banners">
-            <div class="mini" data-tilt>
-              <div class="mini__bg" aria-hidden="true"></div>
-              <div class="mini__content">
-                <div class="mini__kicker">العقارات والمجمعات السكنية</div>
-                <div class="mini__title">إدارة ذكية للمباني والطاقة والأمن</div>
-                <a class="mini__link" href="#contact">اطلب استشارة <lord-icon class="icon-lord icon-lord--arrow" src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#0b1f2a,secondary:#ff9933" aria-hidden="true"></lord-icon></a>
-              </div>
+          <div class="industriesShowcase__panel" aria-label="القطاعات المستهدفة">
+            <% const industryItems = [
+              { label: 'القطاع السكني', bg: '/assets/solutions/smart-home.jpg' },
+              { label: 'القطاع التجاري', bg: '/assets/solutions/smart-office.jpg' },
+              { label: 'القطاع الحكومي', bg: '/assets/solutions/smart-building.jpg' },
+              { label: 'القطاع الصناعي', bg: '/assets/solutions/central-vacuum.jpg' },
+              { label: 'قطاع الرعاية الصحية', bg: '/assets/solutions/smart-hotel.jpg' },
+              { label: 'قطاع التعليم', bg: '/assets/solutions/smart-led-screen.jpg' },
+              { label: 'قطاع المدن الذكية', bg: '/assets/solutions/smart-parking.jpg' }
+            ]; %>
+            <div class="industriesShowcase__grid">
+              <% industryItems.forEach(function(item, idx){ %>
+                <article class="industriesShowcase__card" data-tilt style="--industry-bg:url('<%= item.bg %>')">
+                  <span class="industriesShowcase__index" dir="ltr"><%= String(idx + 1).padStart(2, '0') %></span>
+                  <h3><%= item.label %></h3>
+                </article>
+              <% }) %>
             </div>
-            <div class="mini mini--alt" data-tilt>
-              <div class="mini__bg" aria-hidden="true"></div>
-              <div class="mini__content">
-                <div class="mini__kicker">الضيافة والفنادق</div>
-                <div class="mini__title">تجربة نزيل أفضل وتشغيل أكثر كفاءة</div>
-                <a class="mini__link" href="#contact">اطلب استشارة <lord-icon class="icon-lord icon-lord--arrow" src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#0b1f2a,secondary:#ff9933" aria-hidden="true"></lord-icon></a>
-              </div>
+
+            <div class="industriesShowcase__hint" aria-hidden="true">
+              <span>اسحب أفقيًا لاستعراض القطاعات</span>
+              <span class="industriesShowcase__hintTrack"><i></i></span>
             </div>
-            <div class="mini" data-tilt>
-              <div class="mini__bg" aria-hidden="true"></div>
-              <div class="mini__content">
-                <div class="mini__kicker">الرعاية الصحية والمنشآت الطبية</div>
-                <div class="mini__title">مراقبة بيئية وتتبع أصول طبية لحظي</div>
-                <a class="mini__link" href="#contact">اطلب استشارة <lord-icon class="icon-lord icon-lord--arrow" src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#0b1f2a,secondary:#ff9933" aria-hidden="true"></lord-icon></a>
-              </div>
+
+            <div class="industriesShowcase__foot">
+              <a class="btn btn--ghost" href="#contact">اطلب استشارة للقطاع المناسب</a>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Why ATEX -->
+      <!-- Why أتكس -->
       <section class="section" id="why">
         <div class="container">
           <div class="section__head">
-            <h2><%= content?.why?.heading || 'لماذا أتكس؟' %></h2>
-            <p><%= content?.why?.subheading || 'لأننا نبني حلولاً قابلة للتوسع داخل السعودية, من الأجهزة الذكية إلى البيانات واضحة ودقيقة.' %></p>
+            <h2><%= String(content?.why?.heading || 'لماذا أتكس؟').replace(/ATEX/gi, 'أتكس') %></h2>
+            <p><%= content?.why?.subheading || 'لأننا نبني حلولاً قابلة للتوسع داخل السعودية, من الأجهزة إلى البيانات بمنهجية واضحة.' %></p>
           </div>
 
           <div class="grid grid--cards">
@@ -356,39 +398,55 @@
         </div>
       </section>
 
-      <!-- Contact / CTA -->
-      <section class="section" id="contact">
+      <!-- Social proof -->
+      <section class="section socialProof" id="social-proof">
         <div class="container">
-          <div class="cta" role="region" aria-label="تواصل مع ATEX">
-            <div class="cta__content">
-              <h2><%= content?.contact?.heading || 'جاهز لبدء مشروع إنترنت الأشياء؟' %></h2>
-              <p><%= content?.contact?.subheading || 'أرسل لنا حالة الاستخدام وسنقترح بنية (أجهزة + اتصال + منصة + تكامل) مع خطة تنفيذ واضحة.' %></p>
-              <p><strong>موقعنا:</strong> مركز الهدى للأعمال، طريق الملك عبد الله الفرعي، الشرفية، الطابق الثالث، مكتب 36، جدة 21482</p>
-              <div class="cta__map" aria-label="موقع الشركة على الخريطة">
-                <iframe
-                  title="ATEX Location"
-                  src="https://maps.google.com/maps?q=21.5113771,39.1873588&z=20&hl=ar&output=embed"
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"
-                  allowfullscreen></iframe>
-              </div>
+          <div class="section__head">
+            <h2>موثوقية مثبتة في السوق</h2>
+            <p>شركاؤنا وعملاؤنا في السعودية يعتمدون على أتكس في تنفيذ مشاريع ذكية بمعايير تشغيل عالية.</p>
+          </div>
+
+          <div class="socialProof__logos" aria-label="شعارات شركات سعودية">
+            <div class="socialProof__logo"><span>مجموعة روشن</span></div>
+            <div class="socialProof__logo"><span>شركة البحر الأحمر الدولية</span></div>
+            <div class="socialProof__logo"><span>شركة الاتصالات السعودية</span></div>
+            <div class="socialProof__logo"><span>شركة تطوير المربع الجديد</span></div>
+            <div class="socialProof__logo"><span>شركة المراعي</span></div>
+            <div class="socialProof__logo"><span>شركة أرامكو الرقمية</span></div>
+          </div>
+
+          <div class="grid grid--cards quotesGrid">
+            <article class="card quoteCard" data-tilt>
+              <h3 class="card__title">"تنفيذ احترافي وسرعة استجابة ممتازة"</h3>
+              <p class="card__desc">مدير مشروع – قطاع الضيافة</p>
+            </article>
+            <article class="card quoteCard" data-tilt>
+              <h3 class="card__title">"تحسن واضح في كفاءة التشغيل بعد التكامل"</h3>
+              <p class="card__desc">مدير تشغيل – قطاع العقارات</p>
+            </article>
+            <article class="card quoteCard" data-tilt>
+              <h3 class="card__title">"فريق داعم وخطة تنفيذ واضحة من البداية"</h3>
+              <p class="card__desc">مالك مشروع – قطاع سكني</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="section finalCta" id="contact" aria-label="دعوة للتواصل">
+        <div class="container">
+          <div class="finalCta__band">
+            <div class="finalCta__main">
+              <h2><%= content?.contact?.heading || 'جاهز لبدء مشروعك؟' %></h2>
+              <p><%= content?.contact?.subheading || 'أرسل لنا استفسارك والفريق الفني سيقدم (حلول + أجهزة + تكامل) مع خطة تنفيذ واضحة.' %></p>
+              <a class="btn btn--primary" href="https://wa.me/966580102121" target="_blank" rel="noopener noreferrer">تواصل واتساب الآن</a>
             </div>
-            <form class="cta__form" id="contactForm" autocomplete="on" aria-label="نموذج تواصل">
-              <label class="field">
-                <span class="field__label">الاسم</span>
-                <input class="field__input" name="name" type="text" placeholder="اكتب اسمك" required minlength="2" />
-              </label>
-              <label class="field">
-                <span class="field__label">البريد الإلكتروني</span>
-                <input class="field__input" name="email" type="email" placeholder="name@company.com" dir="ltr" required />
-              </label>
-              <label class="field">
-                <span class="field__label">وصف مختصر للمشروع</span>
-                <textarea class="field__input" name="message" rows="4" placeholder="تتبّع أصول / سلسلة تبريد / عدادات…" required minlength="10"></textarea>
-              </label>
-              <button class="btn btn--primary" type="submit" data-contact-submit>إرسال</button>
-              <p class="formNote" data-contact-note>سنقوم بالتواصل معك في أقرب وقت ممكن.</p>
-            </form>
+
+            <div class="finalCta__card" aria-label="حلول عند الطلب">
+              <h3>هنالك دائماً حل عند الطلب</h3>
+              <p>إذا لم تجد ما تبحث عنه، يمكنك الاتصال بنا مباشرة وسنقدّم لك استشارة مجانية لمساعدتك في اختيار الحل الأنسب.</p>
+              <a class="btn btn--ghost" href="tel:+966580102121" dir="ltr">+966 58 010 2121</a>
+            </div>
           </div>
         </div>
       </section>
