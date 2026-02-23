@@ -2,7 +2,7 @@ const express = require("express");
 const sanitizeHtml = require("sanitize-html");
 const { getDb } = require("../db");
 const { requireAdmin } = require("../auth");
-const { parsePositiveInt, nonEmptyString, toSqliteBool } = require("../utils/safe");
+const { parsePositiveInt, nonEmptyString, parseBoolean, toSqliteBool } = require("../utils/safe");
 
 const router = express.Router();
 
@@ -39,8 +39,8 @@ function readRow(row) {
     html_code: row.html_code || "",
     css_code: row.css_code || "",
     js_code: row.js_code || "",
-    published: !!row.published,
-    unsafe_js: !!row.unsafe_js,
+    published: parseBoolean(row.published, false),
+    unsafe_js: parseBoolean(row.unsafe_js, false),
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -90,6 +90,9 @@ router.post("/", requireAdmin, (req, res) => {
   const unsafe = toSqliteBool(body.unsafe_js);
 
   const db = getDb();
+  const existing = db.prepare("SELECT id FROM custom_pages WHERE slug = ? LIMIT 1").get(slug);
+  if (existing?.id) return res.status(409).json({ error: "SLUG_EXISTS" });
+
   const info = db
     .prepare(
       "INSERT INTO custom_pages (title, slug, html_code, css_code, js_code, published, unsafe_js) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -115,9 +118,18 @@ router.put("/:id", requireAdmin, (req, res) => {
   const unsafe = toSqliteBool(body.unsafe_js);
 
   const db = getDb();
-  db.prepare(
-    "UPDATE custom_pages SET title=?, slug=?, html_code=?, css_code=?, js_code=?, published=?, unsafe_js=? WHERE id=?"
-  ).run(title, slug, html, css, js, published, unsafe, id);
+  const slugOwner = db.prepare("SELECT id FROM custom_pages WHERE slug = ? LIMIT 1").get(slug);
+  if (slugOwner?.id && Number(slugOwner.id) !== id) {
+    return res.status(409).json({ error: "SLUG_EXISTS" });
+  }
+
+  const result = db
+    .prepare(
+      "UPDATE custom_pages SET title=?, slug=?, html_code=?, css_code=?, js_code=?, published=?, unsafe_js=? WHERE id=?"
+    )
+    .run(title, slug, html, css, js, published, unsafe, id);
+
+  if (!result.changes) return res.status(404).json({ error: "NOT_FOUND" });
 
   res.json({ ok: true });
 });
@@ -127,7 +139,8 @@ router.delete("/:id", requireAdmin, (req, res) => {
   const id = parsePositiveInt(req.params.id);
   if (!id) return res.status(400).json({ error: "INVALID_ID" });
   const db = getDb();
-  db.prepare("DELETE FROM custom_pages WHERE id = ?").run(id);
+  const result = db.prepare("DELETE FROM custom_pages WHERE id = ?").run(id);
+  if (!result.changes) return res.status(404).json({ error: "NOT_FOUND" });
   res.json({ ok: true });
 });
 

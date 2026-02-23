@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <%- include('partials/head', { meta }) %>
+  </head>
+  <body>
+    <%- include('partials/site-header', { content }) %>
+
+    <main class="solutionsPage solutionDetailPage">
+      <section class="section solutionsPage__hero" aria-label="تفاصيل الحل">
+        <div class="container solutionsPage__heroInner">
+          <div class="solutionsPage__heroCopy">
+            <span class="solutionsPage__eyebrow">ATEX Solution Detail</span>
+            <h1 class="solutionsPage__title"><%= solution.title %></h1>
+            <p class="solutionsPage__desc"><%= solution.summary %></p>
+
+            <div class="solutionsPage__heroActions">
+              <a class="btn btn--primary" href="/contact-us">اطلب استشارة لهذا الحل</a>
+              <a class="btn btn--ghost" href="/solutions">العودة إلى جميع الحلول</a>
+            </div>
+          </div>
+
+          <div class="solutionsPage__heroMedia" aria-hidden="true">
+            <figure class="solutionsPage__heroPrimary">
+              <img src="<%= solution.primaryImage %>" alt="<%= solution.title %>" loading="lazy" />
+            </figure>
+            <div class="solutionsPage__heroStack">
+              <% (solution.supportImages || []).slice(0, 2).forEach(function(imgPath){ %>
+                <figure><img src="<%= imgPath %>" alt="<%= solution.title %>" loading="lazy" /></figure>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="solution-detail-content">
+        <div class="container">
+          <article class="solutionsPage__detail" aria-labelledby="solution-detail-title">
+            <div class="solutionsPage__detailMedia">
+              <figure class="solutionsPage__detailMain">
+                <img src="<%= solution.primaryImage %>" alt="<%= solution.title %>" loading="lazy" />
+              </figure>
+              <div class="solutionsPage__detailSupport">
+                <% (solution.supportImages || []).forEach(function(imgPath){ %>
+                  <figure><img src="<%= imgPath %>" alt="<%= solution.title %>" loading="lazy" /></figure>
+                <% }) %>
+              </div>
+            </div>
+
+            <div class="solutionsPage__detailBody">
+              <div class="solutionsPage__detailHeader">
+                <p class="solutionsPage__detailKicker" dir="ltr">Solution Detail</p>
+                <h3 id="solution-detail-title"><%= solution.title %></h3>
+              </div>
+
+              <p class="solutionsPage__detailSummary"><%= solution.summary %></p>
+              <p class="solutionsPage__detailText"><%= solution.details %></p>
+
+              <div class="solutionsPage__detailMeta">
+                <section class="solutionsPage__metaBlock">
+                  <h4>القدرات الأساسية</h4>
+                  <ul>
+                    <% (solution.features || []).forEach(function(f){ %>
+                      <li><%= f %></li>
+                    <% }) %>
+                  </ul>
+                </section>
+
+                <section class="solutionsPage__metaBlock">
+                  <h4>حالات استخدام مناسبة</h4>
+                  <div class="solutionsPage__useCases">
+                    <% (solution.useCases || []).forEach(function(u){ %>
+                      <span><%= u %></span>
+                    <% }) %>
+                  </div>
+                </section>
+              </div>
+
+              <div class="solutionsPage__detailActions">
+                <a class="btn btn--primary btn--small" href="/contact-us">اطلب عرضاً لهذا الحل</a>
+                <a class="btn btn--ghost btn--small" href="https://wa.me/966580102121" target="_blank" rel="noopener noreferrer">تواصل واتساب</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <% if (Array.isArray(relatedSolutions) && relatedSolutions.length) { %>
+        <section class="section" aria-label="حلول ذات صلة">
+          <div class="container">
+            <div class="section__head">
+              <p class="solutionsPage__sectionKicker">RELATED SOLUTIONS</p>
+              <h2>حلول أخرى قد تهمكم</h2>
+              <p>اطّلع على حلول إضافية ضمن نفس منظومة ATEX الذكية.</p>
+            </div>
+
+            <div class="solutionsPage__catalogGrid">
+              <% relatedSolutions.forEach(function(s){ %>
+                <article class="solutionsPage__catalogCard" aria-labelledby="related-solution-<%= s.slug %>">
+                  <a class="solutionsPage__catalogMedia" href="/solutions/<%= s.slug %>">
+                    <img src="<%= s.primaryImage %>" alt="<%= s.title %>" loading="lazy" />
+                  </a>
+                  <div class="solutionsPage__catalogBody">
+                    <h3 id="related-solution-<%= s.slug %>">
+                      <a href="/solutions/<%= s.slug %>"><%= s.title %></a>
+                    </h3>
+                    <p class="solutionsPage__catalogSummary"><%= s.summary %></p>
+                    <div class="solutionsPage__catalogActions">
+                      <a class="btn btn--primary btn--small" href="/solutions/<%= s.slug %>">عرض التفاصيل</a>
+                    </div>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          </div>
+        </section>
+      <% } %>
+    </main>
+
+    <%- include('partials/site-footer', { content }) %>
+  </body>
+</html>

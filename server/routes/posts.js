@@ -43,13 +43,18 @@ router.post("/", requireAdmin, (req, res) => {
   const db = getDb();
   const clean = sanitizePostHtml(content_html);
   const tagsJson = JSON.stringify(Array.isArray(tags) ? tags : []);
-  const info = db
-    .prepare(
-      "INSERT INTO posts (slug, title, excerpt, cover_image, content_html, tags_json, published) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    )
-    .run(cleanSlug, cleanTitle, excerpt || "", cover_image || "", clean, tagsJson, toSqliteBool(published));
+  try {
+    const info = db
+      .prepare(
+        "INSERT INTO posts (slug, title, excerpt, cover_image, content_html, tags_json, published) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      )
+      .run(cleanSlug, cleanTitle, excerpt || "", cover_image || "", clean, tagsJson, toSqliteBool(published));
 
-  res.json({ ok: true, id: info.lastInsertRowid });
+    return res.json({ ok: true, id: info.lastInsertRowid });
+  } catch (e) {
+    if (String(e.message || "").includes("UNIQUE")) return res.status(409).json({ error: "SLUG_EXISTS" });
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 });
 
 router.put("/:id", requireAdmin, (req, res) => {
@@ -63,19 +68,28 @@ router.put("/:id", requireAdmin, (req, res) => {
   const clean = sanitizePostHtml(content_html);
   const tagsJson = JSON.stringify(Array.isArray(tags) ? tags : []);
 
-  db.prepare(
-    "UPDATE posts SET slug=?, title=?, excerpt=?, cover_image=?, content_html=?, tags_json=?, published=? WHERE id=?"
-  ).run(cleanSlug, cleanTitle, excerpt || "", cover_image || "", clean, tagsJson, toSqliteBool(published), id);
+  try {
+    const result = db
+      .prepare(
+        "UPDATE posts SET slug=?, title=?, excerpt=?, cover_image=?, content_html=?, tags_json=?, published=? WHERE id=?"
+      )
+      .run(cleanSlug, cleanTitle, excerpt || "", cover_image || "", clean, tagsJson, toSqliteBool(published), id);
 
-  res.json({ ok: true });
+    if (!result.changes) return res.status(404).json({ error: "NOT_FOUND" });
+    return res.json({ ok: true });
+  } catch (e) {
+    if (String(e.message || "").includes("UNIQUE")) return res.status(409).json({ error: "SLUG_EXISTS" });
+    return res.status(500).json({ error: "SERVER_ERROR" });
+  }
 });
 
 router.delete("/:id", requireAdmin, (req, res) => {
   const id = parsePositiveInt(req.params.id);
   if (!id) return res.status(400).json({ error: "INVALID_ID" });
   const db = getDb();
-  db.prepare("DELETE FROM posts WHERE id = ?").run(id);
-  res.json({ ok: true });
+  const result = db.prepare("DELETE FROM posts WHERE id = ?").run(id);
+  if (!result.changes) return res.status(404).json({ error: "NOT_FOUND" });
+  return res.json({ ok: true });
 });
 
 module.exports = router;

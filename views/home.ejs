@@ -156,9 +156,9 @@
             { iconSrc: 'https://cdn.lordicon.com/rsvfayfn.json', bg: '/assets/solutions/central-vacuum.jpg', title: 'نظام المكنسة المركزية', desc: 'تنظيف أكثر راحة وكفاءة عبر نظام مركزي عملي.' },
             { iconSrc: 'https://cdn.lordicon.com/ueoydrft.json', bg: '/assets/solutions/smart-led-screen.jpg', title: 'شاشات LED الداخلية والخارجية', desc: 'شاشات عرض عالية التأثير للاستخدام الداخلي والخارجي.' },
             { iconSrc: 'https://cdn.lordicon.com/fikcyfpp.json', bg: '/assets/solutions/ev-charging.jpg', title: 'أنظمة شحن المركبات الكهربائية (EV Chargers)', desc: 'بنية شحن موثوقة وقابلة للتوسع للمركبات الكهربائية.' },
-            { iconSrc: 'https://cdn.lordicon.com/hrjifpbq.json', bg: '/assets/solutions/smart-office.jpg', title: 'أنظمة تقنية المعلومات والاتصالات', desc: 'بنية اتصالات وشبكات مؤسسية متكاملة تدعم التشغيل الذكي.' },
-            { iconSrc: 'https://cdn.lordicon.com/dxjqoygy.json', bg: '/assets/solutions/smart-ligting.jpg', title: 'أنظمة التحكم بالإضاءة', desc: 'إدارة ذكية لمشاهد الإضاءة وتوفير الطاقة عبر جداول وأتمتة.' },
-            { iconSrc: 'https://cdn.lordicon.com/lenjvibx.json', bg: '/assets/solutions/smart-building.jpg', title: 'الأنظمة الأمنية', desc: 'مراقبة وحماية متقدمة مع تكامل أنظمة الإنذار والتحكم بالوصول.' }
+            { iconSrc: 'https://cdn.lordicon.com/hrjifpbq.json', bg: '/assets/solutions/ICT-Systems.jpg', title: 'أنظمة تقنية المعلومات والاتصالات ICT Systems', desc: 'بنية اتصالات وشبكات مؤسسية متكاملة تدعم التشغيل الذكي.' },
+            { iconSrc: 'https://cdn.lordicon.com/dxjqoygy.json', bg: '/assets/solutions/smart-ligting.jpg', title: 'أنظمة التحكم بالإضاءة الداخلية', desc: 'إدارة ذكية لمشاهد الإضاءة وتوفير الطاقة عبر جداول وأتمتة (DMX - Dali).' },
+            { iconSrc: 'https://cdn.lordicon.com/lenjvibx.json', bg: '/assets/solutions/security-Systems.jpg', title: 'الأنظمة الأمنية (Security Systems)', desc: 'مراقبة وحماية متقدمة مع تكامل أنظمة الإنذار والتحكم بالوصول.' }
           ]; %>
 
           <div class="grid grid--cards">
@@ -255,31 +255,39 @@
         <div class="container">
           <div class="section__head">
             <h2><%= String(content?.why?.heading || 'لماذا أتكس؟').replace(/ATEX/gi, 'أتكس') %></h2>
-            <p><%= content?.why?.subheading || 'لأننا نبني حلولاً قابلة للتوسع داخل السعودية, من الأجهزة إلى البيانات بمنهجية واضحة.' %></p>
+            <p><%= content?.why?.subheading || 'مزايا تنفيذية واضحة تساعد المطورين وفرق التشغيل على اتخاذ قرار استثماري أسرع وأدق.' %></p>
           </div>
 
-          <div class="grid grid--cards">
-            <% const whyExtraCards = [
-              { title: 'جاهزية لبيئات المملكة', desc: 'تصميم الحلول لدرجات الحرارة العالية، المواقع البعيدة، وتفاوت التغطية لضمان استمرارية التشغيل.' },
-              { title: 'تشغيل ودعم محلي', desc: 'فريق سعودي للتنفيذ الميداني، التدريب، والمتابعة التشغيلية السريعة داخل مناطق المملكة.' },
-              { title: 'حَوْكمة بيانات وامتثال', desc: 'بنية مرنة لحفظ السجلات، إدارة الصلاحيات، وتقديم تقارير تدعم متطلبات الامتثال المؤسسي.' }
-            ]; %>
-            <% const whyCards = [...(content?.why?.cards || []), ...whyExtraCards]; %>
-            <% const whyIconPool = ['https://cdn.lordicon.com/ueoydrft.json','https://cdn.lordicon.com/hrjifpbq.json','https://cdn.lordicon.com/lenjvibx.json','https://cdn.lordicon.com/msoeawqm.json']; %>
-            <% whyCards.forEach(function(c, idx){ %>
-              <article class="card" data-tilt>
-                <div class="card__icon">
-                  <lord-icon class="icon-lord icon-lord--card" src="<%= c.iconSrc || whyIconPool[idx % whyIconPool.length] %>" trigger="hover" colors="primary:#002b44,secondary:#ff9933" aria-hidden="true"></lord-icon>
-                </div>
-                <h3 class="card__title"><%= c.title %></h3>
-                <p class="card__desc"><%= c.desc %></p>
+          <% const whyDefaultKeyPoints = [
+            { title: 'عائد استثماري قابل للقياس', brief: 'نربط الحلول بمؤشرات تشغيل ووفورات واضحة في الطاقة والصيانة.' },
+            { title: 'تنفيذ وتسليم من جهة واحدة', brief: 'نغطي التصميم، التوريد، التنفيذ، الاختبارات، والتشغيل المبدئي.' },
+            { title: 'تكامل جاهز مع الأنظمة الحالية', brief: 'ربط مرن مع BMS وأنظمة الأمن والتحكم بالوصول دون تعقيد تشغيلي.' },
+            { title: 'دعم تشغيلي محلي طويل المدى', brief: 'فرق فنية داخل المملكة مع SLA واضحة وخطة صيانة مستمرة.' }
+          ]; %>
+          <% const whyContentCards = Array.isArray(content?.why?.cards) ? content.why.cards : []; %>
+          <% const whyLegacyTitles = ['أمان مؤسسي', 'تكاملات سريعة', 'نتائج أسرع']; %>
+          <% const whyIsLegacy = whyContentCards.length > 0 && whyContentCards.every(function(c){ return whyLegacyTitles.includes(String(c?.title || '')); }); %>
+          <% const whyKeyPoints = (whyContentCards.length ? whyContentCards.map(function(c){
+            return {
+              title: c?.title || '',
+              brief: c?.desc || ''
+            };
+          }) : whyDefaultKeyPoints); %>
+          <% const whyFinalPoints = (whyIsLegacy ? whyDefaultKeyPoints : whyKeyPoints).slice(0, 4).filter(function(p){ return p.title || p.brief; }); %>
+
+          <div class="whyKeypoints" role="list" aria-label="أسباب اختيار أتكس">
+            <% whyFinalPoints.forEach(function(point, idx){ %>
+              <article class="whyKeypoints__item" role="listitem" data-tilt>
+                <span class="whyKeypoints__index" dir="ltr"><%= String(idx + 1).padStart(2, '0') %></span>
+                <h3><%= point.title %></h3>
+                <p><%= point.brief %></p>
               </article>
             <% }) %>
           </div>
         </div>
       </section>
 
-      <!-- How we work (timeline) -->
+      <!-- How we work (flow chart) -->
       <section class="section" id="process">
         <div class="container">
           <div class="section__head">
@@ -287,17 +295,16 @@
             <p><%= content?.process?.subheading || 'خطوات واضحة من الفكرة إلى التشغيل ثم التحسين المستمر.' %></p>
           </div>
 
-          <ol class="timeline" aria-label="خطوات التنفيذ">
-            <% (content?.process?.steps || []).forEach(function(s, idx){ %>
-              <li class="timeline__item">
-                <span class="timeline__dot" aria-hidden="true"></span>
-                <article class="timeline__card">
-                  <div class="timeline__head">
-                    <h3 class="timeline__title"><%= s.title %></h3>
-                    <span class="timeline__stepNo" dir="ltr"><%= String(idx + 1).padStart(2, '0') %></span>
-                  </div>
-                  <p><%= s.desc %></p>
-                </article>
+          <% const processSteps = Array.isArray(content?.process?.steps) ? content.process.steps : []; %>
+          <ol class="processFlow" aria-label="مخطط تدفق خطوات التنفيذ">
+            <% processSteps.forEach(function(s, idx){ %>
+              <li class="processFlow__item">
+                <span class="processFlow__stepNo" dir="ltr"><%= String(idx + 1).padStart(2, '0') %></span>
+                <h3 class="processFlow__title"><%= s.title %></h3>
+                <p class="processFlow__desc"><%= s.desc %></p>
+                <% if (idx < processSteps.length - 1) { %>
+                  <span class="processFlow__arrow" aria-hidden="true">←</span>
+                <% } %>
               </li>
             <% }) %>
           </ol>
@@ -333,11 +340,30 @@
         <div class="container">
           <div class="section__head">
             <h2><%= content?.faq?.heading || 'أسئلة شائعة' %></h2>
-            <p><%= content?.faq?.subheading || 'إجابات سريعة لمساعدتك على اتخاذ قرار.' %></p>
+            <p><%= content?.faq?.subheading || 'إجابات مختصرة لأسئلة المطورين العقاريين قبل اعتماد الحل.' %></p>
           </div>
 
+          <% const faqDefaults = [
+            { q: 'كيف نقيس العائد الاستثماري (ROI) قبل التعميم؟', a: 'نبدأ بنطاق واضح للمشروع ونحدد مؤشرات قابلة للقياس مثل خفض استهلاك الطاقة وتقليل الأعطال وسرعة الاستجابة التشغيلية، ثم نعرض نتائج دورية تساعدكم في قرار التوسع.' },
+            { q: 'ما متطلبات الموقع والجدول الزمني للتنفيذ؟', a: 'نعتمد خطة تنفيذ مرتبطة بمرحلة المشروع، تشمل الجاهزية الكهربائية والشبكية ونقاط التركيب، مع جدول زمني واضح للتوريد والتركيب والاختبار والتسليم.' },
+            { q: 'ما الضمان ومستوى الدعم بعد التسليم؟', a: 'نقدم ضماناً على المكونات وخطة دعم ما بعد البيع تشمل الصيانة الوقائية والتصحيحية مع اتفاقية مستوى خدمة (SLA) حسب احتياج المشروع.' },
+            { q: 'هل يمكن التكامل مع الأنظمة الحالية مثل BMS وCCTV والتحكم بالوصول؟', a: 'نعم، الحل مصمم للتكامل التدريجي مع الأنظمة القائمة لتقليل إعادة العمل وضمان استمرارية التشغيل دون تعطيل.' },
+            { q: 'هل يمكن التوسع على عدة مبانٍ أو مراحل تطوير؟', a: 'بكل تأكيد، التصميم قابل للتوسع من مبنى واحد إلى محفظة مشاريع كاملة مع حوكمة مركزية وصلاحيات تشغيل مناسبة لكل موقع.' },
+            { q: 'كيف تتم إدارة خصوصية البيانات وصلاحيات الوصول؟', a: 'يتم تطبيق سياسات وصول حسب الأدوار مع سجلات تدقيق واضحة، بما يضمن حماية البيانات وإتاحة المعلومات للجهات المخولة فقط.' },
+            { q: 'كيف يتم تسليم التشغيل لفريق إدارة المرافق (FM)؟', a: 'نوفر خطة Handover تشمل التوثيق، التدريب العملي، وإجراءات التشغيل القياسية لضمان انتقال سلس للفريق التشغيلي.' },
+            { q: 'ماذا يحدث عند انقطاع الشبكة أو ضعف الاتصال؟', a: 'يستمر النظام في تشغيل الوظائف الأساسية محلياً وفق تصميم المشروع، مع مزامنة البيانات والتنبيهات تلقائياً عند عودة الاتصال.' }
+          ]; %>
+          <% const faqLegacyQuestions = [
+            'هل يمكن تنفيذ الحل داخل السعودية؟',
+            'هل تدعمون التكامل مع أنظمتنا؟',
+            'هل يمكن البدء بمرحلة تجريبية؟'
+          ]; %>
+          <% const faqContentItems = Array.isArray(content?.faq?.items) ? content.faq.items : []; %>
+          <% const faqIsLegacy = faqContentItems.length > 0 && faqContentItems.every(function(i){ return faqLegacyQuestions.includes(String(i?.q || '')); }); %>
+          <% const faqItems = (faqContentItems.length && !faqIsLegacy) ? faqContentItems : faqDefaults; %>
+
           <div class="faq" role="list">
-            <% (content?.faq?.items || []).forEach(function(it){ %>
+            <% faqItems.forEach(function(it){ %>
               <div class="faq__item" role="listitem">
                 <button class="faq__q" type="button"><%= it.q %> <span class="faq__icon">+</span></button>
                 <div class="faq__a"><%= it.a %></div>

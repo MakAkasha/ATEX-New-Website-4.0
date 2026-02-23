@@ -1,7 +1,7 @@
 const express = require("express");
 const { getDb } = require("../db");
 const { requireAdmin } = require("../auth");
-const { safeJsonParse } = require("../utils/safe");
+const { safeJsonParse, parseBoolean } = require("../utils/safe");
 
 const router = express.Router();
 
@@ -35,7 +35,7 @@ function loadAnalyticsSettings() {
   if (env) {
     // env overrides fields but still show DB values for missing ones
     return {
-      enabled: typeof env.enabled === "boolean" ? env.enabled : !!value.enabled,
+      enabled: typeof env.enabled === "boolean" ? env.enabled : parseBoolean(value.enabled, false),
       gaMeasurementId: env.gaMeasurementId || value.gaMeasurementId || "",
       gtmContainerId: env.gtmContainerId || value.gtmContainerId || "",
       source: "env",
@@ -46,7 +46,7 @@ function loadAnalyticsSettings() {
 
 function saveAnalyticsSettings(next) {
   const clean = {
-    enabled: !!next.enabled,
+    enabled: parseBoolean(next.enabled, false),
     gaMeasurementId: String(next.gaMeasurementId || "").trim(),
     gtmContainerId: String(next.gtmContainerId || "").trim(),
   };
@@ -74,7 +74,7 @@ function loadGeneralSettings() {
   return {
     ...base,
     ...parsed,
-    maintenanceMode: !!parsed.maintenanceMode,
+    maintenanceMode: parseBoolean(parsed.maintenanceMode, false),
   };
 }
 
@@ -83,7 +83,7 @@ function saveGeneralSettings(next) {
     companyName: String(next.companyName || "ATEX").trim() || "ATEX",
     adminEmail: String(next.adminEmail || "").trim(),
     whatsapp: String(next.whatsapp || "").trim(),
-    maintenanceMode: !!next.maintenanceMode,
+    maintenanceMode: parseBoolean(next.maintenanceMode, false),
     homepageTitle: String(next.homepageTitle || "").trim(),
     homepageDescription: String(next.homepageDescription || "").trim(),
   };

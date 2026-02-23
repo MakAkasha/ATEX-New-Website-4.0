@@ -11,3 +11,6 @@ pnpm-debug.log*
 Thumbs.db
 
 .vscode/
+
+# Local runtime logs
+server_run*.log

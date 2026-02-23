@@ -2,41 +2,114 @@
 <html lang="ar" dir="rtl">
   <head>
     <%- include('partials/head', { meta }) %>
-    <style>
-      .page { padding: 44px 0 70px; }
-      .solutionsGrid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      @media (max-width: 980px) { .solutionsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-      @media (max-width: 760px) { .solutionsGrid { grid-template-columns: 1fr; } }
-      .solutionItem {
-        border: 1px solid rgba(0,0,0,0.08);
-        border-radius: 16px;
-        background: rgba(255,255,255,0.82);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.06);
-        padding: 16px;
-      }
-      .solutionItem h3 { margin: 0 0 6px; color: #002b44; }
-      .solutionItem p { margin: 0; font-weight: 700; color: rgba(11,31,42,0.72); }
-    </style>
   </head>
   <body>
     <%- include('partials/site-header', { content }) %>
 
-    <main class="page">
-      <div class="container">
-        <div class="section__head">
-          <h2>الأنظمة والحلول</h2>
-          <p>حلول ذكية مصممة لدعم التشغيل، الكفاءة، والتوسع في مختلف القطاعات.</p>
-        </div>
+    <% const solutions = Array.isArray(pageSolutions) ? pageSolutions : []; %>
 
-        <div class="solutionsGrid">
-          <% (solutions || []).forEach(function(s){ %>
-            <article class="solutionItem" data-tilt>
-              <h3><%= s.title %></h3>
-              <p><%= s.desc %></p>
-            </article>
-          <% }) %>
+    <main class="solutionsPage">
+      <section class="section solutionsPage__hero" aria-label="مقدمة الأنظمة والحلول">
+        <div class="container solutionsPage__heroInner">
+          <div class="solutionsPage__heroCopy">
+            <span class="solutionsPage__eyebrow">ATEX Solutions</span>
+            <h1 class="solutionsPage__title">حلول ذكية متكاملة لرفع كفاءة مشاريعكم</h1>
+            <p class="solutionsPage__desc">
+              اكتشفوا حلول ATEX في صفحة واحدة منظمة، ثم انتقلوا إلى صفحة مستقلة لكل حل للاطلاع على التفاصيل الفنية،
+              القدرات التشغيلية، وحالات الاستخدام الملائمة لمشروعكم.
+            </p>
+            <div class="solutionsPage__heroActions">
+              <a class="btn btn--primary" href="/contact-us">اطلب استشارة مشروع</a>
+            </div>
+
+            <ul class="solutionsPage__heroStats" aria-label="إحصاءات موجزة">
+              <li>
+                <strong><%= solutions.length %></strong>
+                <span>حلول متخصصة</span>
+              </li>
+              <li>
+                <strong>+40%</strong>
+                <span>تحسين كفاءة التشغيل</span>
+              </li>
+              <li>
+                <strong>24/7</strong>
+                <span>دعم وتشغيل مستمر</span>
+              </li>
+            </ul>
+
+            <ul class="solutionsPage__heroBadges" aria-label="مزايا تشغيلية">
+              <li>تصميم وتنفيذ بمعايير احترافية</li>
+              <li>تكامل بين الأنظمة في منصة موحّدة</li>
+              <li>قابلية توسع مستقبلية حسب نمو المشروع</li>
+            </ul>
+          </div>
+
+          <div class="solutionsPage__heroMedia" aria-hidden="true">
+            <figure class="solutionsPage__heroPrimary">
+              <img src="/assets/solutions/smart-building.jpg" alt="" loading="lazy" />
+            </figure>
+            <div class="solutionsPage__heroStack">
+              <figure><img src="/assets/solutions/smart-office.jpg" alt="" loading="lazy" /></figure>
+              <figure><img src="/assets/solutions/security-Systems.jpg" alt="" loading="lazy" /></figure>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section class="section" id="solutions-catalog">
+        <div class="container">
+          <div class="section__head">
+            <p class="solutionsPage__sectionKicker">SOLUTIONS CATALOG</p>
+            <h2>اختر الحل المناسب ثم استعرض صفحته التفصيلية</h2>
+            <p>كل بطاقة تفتح صفحة مستقلة تحتوي على شرح أعمق للحل، الميزات، وحالات الاستخدام المقترحة.</p>
+          </div>
+
+          <div class="solutionsPage__catalogGrid">
+            <% solutions.forEach(function(s, idx){ %>
+              <article class="solutionsPage__catalogCard" aria-labelledby="solution-card-title-<%= s.slug %>">
+                <a class="solutionsPage__catalogMedia" href="/solutions/<%= s.slug %>">
+                  <img src="<%= s.primaryImage %>" alt="<%= s.title %>" loading="lazy" />
+                </a>
+
+                <div class="solutionsPage__catalogBody">
+                  <p class="solutionsPage__catalogKicker" dir="ltr">Solution / <%= String(idx + 1).padStart(2, '0') %></p>
+                  <h3 id="solution-card-title-<%= s.slug %>">
+                    <a href="/solutions/<%= s.slug %>"><%= s.title %></a>
+                  </h3>
+                  <p class="solutionsPage__catalogSummary"><%= s.summary %></p>
+
+                  <div class="solutionsPage__useCases">
+                    <% (s.useCases || []).slice(0, 2).forEach(function(u){ %>
+                      <span><%= u %></span>
+                    <% }) %>
+                  </div>
+
+                  <div class="solutionsPage__catalogActions">
+                    <a class="btn btn--primary btn--small" href="/solutions/<%= s.slug %>">عرض التفاصيل</a>
+                  </div>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="finalCta__band">
+            <div class="finalCta__main">
+              <h2>هل تحتاج دمج أكثر من حل في مشروع واحد؟</h2>
+              <p>فريق ATEX يساعدك ببناء خارطة تنفيذ متكاملة تربط الأنظمة والحلول على مراحل واضحة وقابلة للتوسع.</p>
+              <a class="btn btn--primary" href="/contact-us">ابدأ المناقشة الفنية</a>
+            </div>
+            <div class="finalCta__card">
+              <h3>استشارة فنية مجانية</h3>
+              <p>أرسل نوع المشروع والمساحة والقطاع المستهدف وسنقترح لك الحلول المناسبة خلال وقت قصير.</p>
+              <a class="btn btn--ghost" href="tel:+966580102121" dir="ltr">+966 58 010 2121</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <%- include('partials/site-footer', { content }) %>

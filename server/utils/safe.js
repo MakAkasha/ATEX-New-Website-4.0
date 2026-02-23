@@ -17,13 +17,30 @@ function nonEmptyString(value) {
   return s || null;
 }
 
-function toSqliteBool(value) {
-  return value ? 1 : 0;
+function parseBoolean(value, fallback = false) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+
+    if (["1", "true", "yes", "on"].includes(normalized)) return true;
+    if (["0", "false", "no", "off"].includes(normalized)) return false;
+  }
+
+  if (value == null) return !!fallback;
+  return !!value;
+}
+
+function toSqliteBool(value, fallback = false) {
+  return parseBoolean(value, fallback) ? 1 : 0;
 }
 
 module.exports = {
   safeJsonParse,
   parsePositiveInt,
   nonEmptyString,
+  parseBoolean,
   toSqliteBool,
 };

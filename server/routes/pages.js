@@ -6,8 +6,10 @@ const { getDb } = require("../db");
 const { normalizeHomeContent } = require("../homeSchema");
 const { sanitizePageHtml } = require("./customPages");
 const { loadAnalyticsSettings } = require("./settings");
+const { solutions } = require("../data/solutions");
 
 const router = express.Router();
+const ROOT_DIR = path.resolve(__dirname, "..", "..");
 
 function loadHomeContent() {
   const db = getDb();
@@ -20,6 +22,14 @@ function loadHomeContent() {
 }
 
 function parseCookie(cookieHeader) {
+  const safeDecode = (value) => {
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
+  };
+
   const out = {};
   const raw = String(cookieHeader || "");
   raw.split(";").forEach((part) => {
@@ -28,7 +38,7 @@ function parseCookie(cookieHeader) {
     const k = part.slice(0, i).trim();
     const v = part.slice(i + 1).trim();
     if (!k) return;
-    out[k] = decodeURIComponent(v);
+    out[k] = safeDecode(v);
   });
   return out;
 }
@@ -71,11 +81,11 @@ router.get("/", (req, res) => {
 
 // Friendly routes
 router.get("/admin-login", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "admin", "admin-login.html"));
+  res.sendFile(path.join(ROOT_DIR, "admin", "admin-login.html"));
 });
 
 router.get("/admin", requireAdminPage, (req, res) => {
-  res.sendFile(path.join(process.cwd(), "admin", "admin.html"));
+  res.sendFile(path.join(ROOT_DIR, "admin", "admin.html"));
 });
 
 // Legal (SSR)
@@ -139,22 +149,40 @@ router.get("/blog/:slug", (req, res) => {
 // Solutions page
 router.get("/solutions", (req, res) => {
   const content = loadHomeContent();
-  const solutions = [
-    { title: "أنظمة المنازل الذكية", desc: "تحكم مركزي بالإضاءة والتكييف والطاقة والمشاهد اليومية." },
-    { title: "أنظمة المكاتب الذكية", desc: "رفع الإنتاجية وكفاءة التشغيل عبر أتمتة بيئة العمل." },
-    { title: "أنظمة الفنادق الذكية", desc: "تجربة ضيافة حديثة مع إدارة متكاملة للغرف والخدمات." },
-    { title: "أنظمة إدارة المباني (BMS)", desc: "مراقبة وتحكم موحد في الأنظمة الحيوية للمبنى." },
-    { title: "الأنظمة الأمنية", desc: "تكامل المراقبة والتحكم بالوصول والتنبيهات الذكية." },
-    { title: "أنظمة شحن المركبات الكهربائية", desc: "بنية شحن موثوقة وقابلة للتوسع للمشاريع الحديثة." },
-  ];
-
   return res.render("solutions", {
     content,
-    solutions,
+    pageSolutions: solutions,
     ...baseRenderData(req),
     meta: {
       title: "ATEX | الأنظمة والحلول",
-      description: "استكشف الأنظمة والحلول الذكية التي تقدمها أتكس لقطاعات الأعمال داخل السعودية.",
+      description:
+        "صفحة الأنظمة والحلول من ATEX: تفاصيل موسّعة لكل حل مع القدرات الأساسية، حالات الاستخدام، وصور داعمة للمشاريع داخل السعودية.",
+    },
+  });
+});
+
+// Single solution page
+router.get("/solutions/:slug", (req, res) => {
+  const content = loadHomeContent();
+  const slug = String(req.params.slug || "").toLowerCase();
+  const solution = solutions.find((s) => s.slug === slug);
+
+  if (!solution) {
+    return res
+      .status(404)
+      .render("not-found", { content, ...baseRenderData(req), meta: { title: "ATEX | غير موجود" } });
+  }
+
+  const relatedSolutions = solutions.filter((s) => s.slug !== solution.slug).slice(0, 3);
+
+  return res.render("solution-detail", {
+    content,
+    solution,
+    relatedSolutions,
+    ...baseRenderData(req),
+    meta: {
+      title: `ATEX | ${solution.title}`,
+      description: solution.summary,
     },
   });
 });

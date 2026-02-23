@@ -6,6 +6,8 @@ const rateLimit = require("express-rate-limit");
 const { requireAdmin } = require("../auth");
 
 const router = express.Router();
+const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const UPLOADS_DIR = path.join(ROOT_DIR, "uploads");
 
 const uploadLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -20,7 +22,7 @@ function makeStorage(kind, allowedExts, fallbackExt) {
       const now = new Date();
       const year = String(now.getFullYear());
       const month = String(now.getMonth() + 1).padStart(2, "0");
-      const dir = path.join(process.cwd(), "uploads", kind, year, month);
+      const dir = path.join(UPLOADS_DIR, kind, year, month);
       fs.mkdirSync(dir, { recursive: true });
       cb(null, dir);
     },
@@ -63,7 +65,7 @@ const uploadVideos = multer({
 });
 
 function toPublicUploadUrl(absPath) {
-  const rel = path.relative(path.join(process.cwd(), "uploads"), absPath);
+  const rel = path.relative(UPLOADS_DIR, absPath);
   return `/uploads/${rel.replace(/\\/g, "/")}`;
 }
 
@@ -89,7 +91,7 @@ router.post("/videos", requireAdmin, uploadLimiter, uploadVideos.single("video")
 });
 
 router.get("/videos", requireAdmin, uploadLimiter, (req, res) => {
-  const root = path.join(process.cwd(), "uploads", "videos");
+  const root = path.join(UPLOADS_DIR, "videos");
   const videos = walkFiles(root)
     .filter((fullPath) => [".mp4", ".webm", ".ogg"].includes(path.extname(fullPath).toLowerCase()))
     .map((fullPath) => {

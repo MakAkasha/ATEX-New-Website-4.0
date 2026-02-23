@@ -5,6 +5,31 @@
 */
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DESKTOP_MOTION_MIN_WIDTH = 981;
+
+function hasFinePointer() {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
+function isTouchLike() {
+  return window.matchMedia("(hover: none), (pointer: coarse)").matches;
+}
+
+function getMotionContext() {
+  const finePointer = hasFinePointer();
+  const touchLike = isTouchLike();
+  const desktopLike = window.innerWidth >= DESKTOP_MOTION_MIN_WIDTH;
+
+  return {
+    reduced: prefersReducedMotion,
+    finePointer,
+    touchLike,
+    desktopLike,
+    allowGsap: !prefersReducedMotion && !!window.gsap,
+    allowTilt: !prefersReducedMotion && finePointer && desktopLike,
+    allowAmbient: !prefersReducedMotion && finePointer && !touchLike && desktopLike,
+  };
+}
 
 function qs(sel, root = document) {
   return root.querySelector(sel);
@@ -238,7 +263,8 @@ function initMarquee() {
 function initFaq() {
   // Fallback behavior when GSAP isn't available.
   // If GSAP is present, we do a richer height animation inside initGsap().
-  if (!prefersReducedMotion && window.gsap) return;
+  const motion = getMotionContext();
+  if (motion.allowGsap && motion.finePointer) return;
 
   const items = qsa(".faq__item");
   if (!items.length) return;
@@ -455,50 +481,88 @@ function renderPosts(items) {
 
 function initTilt() {
   // Micro-interaction without external libs.
+  const motion = getMotionContext();
+  if (!motion.allowTilt) return;
+
   const cards = qsa("[data-tilt]");
   if (!cards.length) return;
 
   cards.forEach((card) => {
     let raf = 0;
+    let rect = null;
+    let resetTimer = 0;
+    const maxTilt = 4;
+
+    const clearResetTimer = () => {
+      if (!resetTimer) return;
+      window.clearTimeout(resetTimer);
+      resetTimer = 0;
+    };
+
+    const onEnter = () => {
+      clearResetTimer();
+      rect = card.getBoundingClientRect();
+      card.style.willChange = "transform";
+      card.style.transition = "transform 140ms ease-out";
+    };
+
     const onMove = (e) => {
-      const rect = card.getBoundingClientRect();
+      if (!rect) rect = card.getBoundingClientRect();
       const px = (e.clientX - rect.left) / rect.width;
       const py = (e.clientY - rect.top) / rect.height;
-      const rx = (0.5 - py) * 7;
-      const ry = (px - 0.5) * 9;
+      const rx = (0.5 - py) * maxTilt;
+      const ry = (px - 0.5) * maxTilt;
 
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+        card.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translate3d(0,-1px,0)`;
       });
     };
 
     const reset = () => {
+      cancelAnimationFrame(raf);
+      clearResetTimer();
+      rect = null;
+      card.style.transition = "transform 220ms ease-out";
       card.style.transform = "";
+      resetTimer = window.setTimeout(() => {
+        card.style.willChange = "";
+      }, 220);
     };
 
+    card.addEventListener("mouseenter", onEnter);
     card.addEventListener("mousemove", onMove);
     card.addEventListener("mouseleave", reset);
   });
 }
 
 function initGsap() {
-  if (prefersReducedMotion) return;
-  if (!window.gsap) return;
+  const motion = getMotionContext();
+  if (!motion.allowGsap) return;
 
   const gsap = window.gsap;
-  if (window.ScrollTrigger) gsap.registerPlugin(window.ScrollTrigger);
+  const ambientMotion = motion.allowAmbient;
+  const canUseScrollTrigger = !!window.ScrollTrigger;
+  const withScrollTrigger = (config) => (canUseScrollTrigger ? { scrollTrigger: config } : {});
+
+  gsap.defaults({ overwrite: "auto" });
+  if (canUseScrollTrigger) {
+    gsap.registerPlugin(window.ScrollTrigger);
+    // Refresh once all media has settled to avoid trigger jitter.
+    window.addEventListener("load", () => window.ScrollTrigger.refresh(), { once: true });
+  }
 
   // Intro
   gsap.set([".hero__copy > *", ".hero__scene"], { opacity: 0, y: 22 });
   gsap.to(".hero__copy > *", { opacity: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.08, delay: 0.08 });
   gsap.to(".hero__scene", { opacity: 1, y: 0, duration: 1.0, ease: "power3.out", delay: 0.2 });
 
-  // Loop orbs
-  gsap.to(".orb--a", { y: 18, x: -10, duration: 4.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
-  gsap.to(".orb--b", { y: -20, x: 12, duration: 5.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
-  gsap.to(".orb--c", { y: 16, x: 10, duration: 3.7, yoyo: true, repeat: -1, ease: "sine.inOut" });
-  gsap.to(".glass__sparkline span", { height: "random(8, 42)", duration: 1.1, stagger: 0.08, repeat: -1, yoyo: true, ease: "sine.inOut" });
+  // Ambient loops (desktop/fine pointer only)
+  if (ambientMotion) {
+    gsap.to(".orb--a", { y: 12, x: -6, duration: 6.8, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    gsap.to(".orb--b", { y: -14, x: 8, duration: 7.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    gsap.to(".orb--c", { y: 10, x: 6, duration: 6.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
+  }
 
   // Counters (stats)
   qsa(".stat").forEach((stat) => {
@@ -511,10 +575,11 @@ function initGsap() {
       duration: 1.4,
       ease: "power2.out",
       onUpdate: () => (num.textContent = String(Math.round(obj.v))),
-      scrollTrigger: {
+      ...withScrollTrigger({
         trigger: stat,
         start: "top 85%",
-      },
+        once: true,
+      }),
     });
   });
 
@@ -522,7 +587,9 @@ function initGsap() {
   const sections = qsa(".section");
   sections.forEach((sec) => {
     const isWhySection = sec.id === "why";
-    const items = isWhySection ? qsa(".section__head", sec) : qsa(".section__head, .grid > *, .banner, .cta, .footer", sec);
+    const items = isWhySection
+      ? qsa(".section__head, .whyKeypoints__item", sec)
+      : qsa(".section__head, .grid > *, .processFlow__item, .banner, .cta, .footer", sec);
     if (!items.length) return;
 
     gsap.from(items, {
@@ -531,162 +598,181 @@ function initGsap() {
       duration: 0.9,
       ease: "power3.out",
       stagger: 0.06,
-      scrollTrigger: {
+      ...withScrollTrigger({
         trigger: sec,
         start: "top 78%",
-      },
+        once: true,
+      }),
     });
   });
 
   // Subtle button hover pop
-  qsa(".btn, .chip").forEach((el) => {
-    el.addEventListener("mouseenter", () => gsap.to(el, { scale: 1.02, duration: 0.18, ease: "power2.out" }));
-    el.addEventListener("mouseleave", () => gsap.to(el, { scale: 1.0, duration: 0.22, ease: "power2.out" }));
-  });
+  if (motion.finePointer) {
+    qsa(".btn, .chip").forEach((el) => {
+      el.addEventListener("mouseenter", () => gsap.to(el, { scale: 1.015, duration: 0.16, ease: "power2.out" }));
+      el.addEventListener("mouseleave", () => gsap.to(el, { scale: 1.0, duration: 0.2, ease: "power2.out" }));
+    });
+  }
 
   // WHY cards: depth stagger + soft floating loop
   const why = qs("#why");
   if (why) {
-    const cards = qsa(".card", why);
+    const cards = qsa(".whyKeypoints__item", why);
     if (cards.length) {
       gsap.from(cards, {
         opacity: 0,
         y: 28,
         rotateX: 8,
         immediateRender: false,
-        duration: 0.9,
+        duration: 0.75,
         ease: "power3.out",
-        stagger: 0.08,
-        scrollTrigger: { trigger: why, start: "top 75%" },
-      });
-
-      cards.forEach((card, i) => {
-        // Gentle idle float (phase shifted)
-        gsap.to(card, {
-          y: i % 2 === 0 ? -6 : -10,
-          duration: 2.8 + i * 0.25,
-          ease: "sine.inOut",
-          yoyo: true,
-          repeat: -1,
-        });
+        stagger: 0.06,
+        ...withScrollTrigger({ trigger: why, start: "top 75%", once: true }),
       });
     }
   }
 
-  // PROCESS: line progress + dot pulses + item reveal
+  // PROCESS: flow chart reveal + arrow pulse
   const process = qs("#process");
-  const timeline = process ? qs(".timeline", process) : null;
-  if (timeline && window.ScrollTrigger) {
-    const items = qsa(".timeline__item", timeline);
-    const dots = qsa(".timeline__dot", timeline);
+  const processFlow = process ? qs(".processFlow", process) : null;
+  if (processFlow) {
+    const items = qsa(".processFlow__item", processFlow);
+    const arrows = qsa(".processFlow__arrow", processFlow);
 
     gsap.from(items, {
       opacity: 0,
-      x: 18,
-      duration: 0.7,
+      y: 18,
+      duration: 0.6,
       ease: "power2.out",
-      stagger: 0.08,
-      scrollTrigger: { trigger: timeline, start: "top 75%" },
+      stagger: 0.06,
+      ...withScrollTrigger({ trigger: processFlow, start: "top 75%", once: true }),
     });
 
-    // Animate a CSS custom property used by the line pseudo
-    gsap.fromTo(
-      timeline,
-      { "--lineX": 0 },
-      {
-        "--lineX": 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: timeline,
-          start: "top 80%",
-          end: "bottom 40%",
-          scrub: true,
-        },
-      }
-    );
-
-    dots.forEach((dot) => {
-      gsap.to(dot, {
-        scale: 1.2,
-        duration: 0.8,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        scrollTrigger: { trigger: timeline, start: "top 90%", end: "bottom 10%", toggleActions: "play pause resume pause" },
-      });
-    });
+    if (ambientMotion && arrows.length) {
+      gsap.fromTo(
+        arrows,
+        { scale: 0.95, opacity: 0.75 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.45,
+          stagger: 0.06,
+          ease: "power2.out",
+          ...withScrollTrigger({ trigger: processFlow, start: "top 82%", once: true }),
+        }
+      );
+    }
   }
 
   // INTEGRATIONS: subtle parallax + glow in
   const integrations = qs("#integrations");
-  if (integrations && window.ScrollTrigger) {
-    const chips = qsa(".marquee__chip", integrations);
-    gsap.from(chips, {
-      opacity: 0,
-      y: 10,
-      duration: 0.5,
-      ease: "power2.out",
-      stagger: 0.02,
-      scrollTrigger: { trigger: integrations, start: "top 80%" },
-    });
+  if (integrations) {
+    const marquee = qs(".marquee", integrations);
+    if (marquee) {
+      gsap.from(marquee, {
+        opacity: 0,
+        y: 12,
+        duration: 0.55,
+        ease: "power2.out",
+        ...withScrollTrigger({ trigger: integrations, start: "top 80%", once: true }),
+      });
+    }
 
     const bg = qs(".section__head", integrations);
-    if (bg) {
+    if (bg && ambientMotion && canUseScrollTrigger) {
       gsap.to(bg, {
         y: -10,
         ease: "none",
-        scrollTrigger: { trigger: integrations, start: "top bottom", end: "bottom top", scrub: true },
+        scrollTrigger: {
+          trigger: integrations,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.65,
+        },
       });
     }
   }
 
   // FAQ: height animation + stagger on first view
   const faq = qs("#faq");
-  if (faq) {
+  if (faq && motion.finePointer) {
     const items = qsa(".faq__item", faq);
-    if (items.length && window.ScrollTrigger) {
+    if (items.length) {
       gsap.from(items, {
-        opacity: 0,
+      opacity: 0,
         y: 18,
         duration: 0.7,
         ease: "power3.out",
         stagger: 0.06,
-        scrollTrigger: { trigger: faq, start: "top 78%" },
+        ...withScrollTrigger({ trigger: faq, start: "top 78%", once: true }),
       });
     }
 
-    // Animate open/close
+    const setFaqIcon = (item) => {
+      const icon = qs(".faq__icon", item);
+      if (icon) icon.textContent = item.classList.contains("is-open") ? "–" : "+";
+    };
+
+    const closeAnswer = (answer) => {
+      gsap.killTweensOf(answer);
+      const currentHeight = answer.offsetHeight || answer.scrollHeight || 0;
+      gsap.fromTo(
+        answer,
+        { height: currentHeight, overflow: "hidden", display: "block" },
+        { height: 0, duration: 0.28, ease: "power2.out" }
+      );
+    };
+
+    const openAnswer = (answer) => {
+      gsap.killTweensOf(answer);
+      gsap.set(answer, { display: "block", overflow: "hidden" });
+      gsap.fromTo(
+        answer,
+        { height: answer.offsetHeight || 0 },
+        {
+          height: answer.scrollHeight,
+          duration: 0.32,
+          ease: "power2.out",
+          onComplete: () => gsap.set(answer, { height: "auto" }),
+        }
+      );
+    };
+
+    // Animate open/close with tween cancelation to avoid jitter on rapid taps/clicks.
     items.forEach((item) => {
       const btn = qs(".faq__q", item);
       const ans = qs(".faq__a", item);
       if (!btn || !ans) return;
 
-      // Set initial state for GSAP height animation
-      gsap.set(ans, { height: 0, overflow: "hidden", display: "block" });
-      const autoH = () => ans.scrollHeight;
+      const initiallyOpen = item.classList.contains("is-open");
+      gsap.set(ans, {
+        height: initiallyOpen ? "auto" : 0,
+        overflow: "hidden",
+        display: "block",
+      });
+      setFaqIcon(item);
 
       btn.addEventListener("click", () => {
         const isOpen = item.classList.contains("is-open");
+
         // Close others (animated)
         items.forEach((x) => {
-          if (x === item) return;
-          if (!x.classList.contains("is-open")) return;
+          if (x === item || !x.classList.contains("is-open")) return;
           x.classList.remove("is-open");
           const a = qs(".faq__a", x);
-          if (a) gsap.to(a, { height: 0, duration: 0.28, ease: "power2.out" });
-          const ic = qs(".faq__icon", x);
-          if (ic) ic.textContent = "+";
+          if (a) closeAnswer(a);
+          setFaqIcon(x);
         });
 
         item.classList.toggle("is-open", !isOpen);
-        const icon = qs(".faq__icon", item);
-        if (icon) icon.textContent = item.classList.contains("is-open") ? "–" : "+";
+        setFaqIcon(item);
 
-        gsap.to(ans, {
-          height: item.classList.contains("is-open") ? autoH : 0,
-          duration: 0.32,
-          ease: "power2.out",
-        });
+        if (item.classList.contains("is-open")) {
+          openAnswer(ans);
+          return;
+        }
+
+        closeAnswer(ans);
       });
     });
   }
@@ -724,6 +810,10 @@ async function bootstrap() {
 
   initTilt();
   initGsap();
+
+  if (window.ScrollTrigger) {
+    window.setTimeout(() => window.ScrollTrigger.refresh(), 140);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", bootstrap);

@@ -4,7 +4,8 @@ const Database = require("better-sqlite3");
 
 const { getDefaultHomeContent, normalizeHomeContent } = require("./homeSchema");
 
-const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), "server", "data.sqlite");
+const ROOT_DIR = path.resolve(__dirname, "..");
+const DB_PATH = process.env.DB_PATH || path.join(ROOT_DIR, "server", "data.sqlite");
 
 /**
  * Returns a singleton SQLite connection.
@@ -165,7 +166,7 @@ function migrate() {
   const productsCount = Number(db.prepare("SELECT COUNT(*) as c FROM products").get()?.c || 0);
   if (productsCount === 0) {
     try {
-      const seedPath = path.join(process.cwd(), "data", "products.json");
+      const seedPath = path.join(ROOT_DIR, "data", "products.json");
       const raw = fs.readFileSync(seedPath, "utf8");
       const rows = JSON.parse(raw);
       if (Array.isArray(rows) && rows.length) {

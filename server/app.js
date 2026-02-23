@@ -17,10 +17,11 @@ const { router: settingsRoutes } = require("./routes/settings");
 const pagesRoutes = require("./routes/pages");
 
 const app = express();
+const ROOT_DIR = path.resolve(__dirname, "..");
 
 // Views (EJS) for server-rendered pages like blog/legal
 app.set("view engine", "ejs");
-app.set("views", path.join(process.cwd(), "views"));
+app.set("views", path.join(ROOT_DIR, "views"));
 
 // Migrate DB on boot
 migrate();
@@ -62,14 +63,14 @@ app.use(
 );
 
 // Static public site
-app.use("/assets", express.static(path.join(process.cwd(), "assets")));
-app.use("/data", express.static(path.join(process.cwd(), "data")));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/assets", express.static(path.join(ROOT_DIR, "assets")));
+app.use("/data", express.static(path.join(ROOT_DIR, "data")));
+app.use("/uploads", express.static(path.join(ROOT_DIR, "uploads")));
 
 // Admin static (disable directory redirect so /admin can be handled by router)
 app.use(
   "/admin",
-  express.static(path.join(process.cwd(), "admin"), {
+  express.static(path.join(ROOT_DIR, "admin"), {
     redirect: false,
   })
 );
@@ -102,6 +103,7 @@ app.use((err, req, res, next) => {
 });
 
 const port = Number(process.env.PORT || 5173);
-app.listen(port, "127.0.0.1", () => {
-  console.log(`[ATEX] server running on http://127.0.0.1:${port}`);
+const host = process.env.HOST || "127.0.0.1";
+app.listen(port, host, () => {
+  console.log(`[ATEX] server running on http://${host}:${port}`);
 });
