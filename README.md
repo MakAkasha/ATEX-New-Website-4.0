@@ -1,4 +1,4 @@
-# ATEX New Website 4.0
+# ATEX New Website
 
 Official website project for **ATEX** — a Saudi technology company focused on delivering smart, scalable IoT and automation solutions for homes, hotels, offices, and enterprise facilities.
 
