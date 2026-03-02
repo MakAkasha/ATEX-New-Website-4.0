@@ -159,6 +159,10 @@ function getDefaultHomeContent() {
       ctaHref: "/blog",
     },
 
+    sections: {
+      productsEnabled: true,
+    },
+
     contact: {
       heading: "جاهز لبدء مشروع إنترنت الأشياء؟",
       subheading: "أرسل لنا حالة الاستخدام وسنقترح بنية (أجهزة + اتصال + منصة + تكامل) مع خطة تنفيذ واضحة.",
@@ -178,6 +182,10 @@ function asString(x) {
 function asNumber(x) {
   const n = Number(x);
   return Number.isFinite(n) ? n : 0;
+}
+
+function asBoolean(x, fallback = false) {
+  return typeof x === "boolean" ? x : fallback;
 }
 
 function normalizeHomeContent(input) {
@@ -263,12 +271,6 @@ function normalizeHomeContent(input) {
   if (src.process && typeof src.process === "object") {
     out.process.heading = asString(src.process.heading) || out.process.heading;
     out.process.subheading = asString(src.process.subheading) || out.process.subheading;
-    if (Array.isArray(src.process.steps)) {
-      out.process.steps = src.process.steps
-        .filter((s) => s && typeof s === "object")
-        .map((s) => ({ title: asString(s.title) || "", desc: asString(s.desc) || "" }))
-        .filter((s) => s.title || s.desc);
-    }
   }
 
   if (src.integrations && typeof src.integrations === "object") {
@@ -295,6 +297,10 @@ function normalizeHomeContent(input) {
     out.blogTeaser.subheading = asString(src.blogTeaser.subheading) || out.blogTeaser.subheading;
     out.blogTeaser.ctaText = asString(src.blogTeaser.ctaText) || out.blogTeaser.ctaText;
     out.blogTeaser.ctaHref = asString(src.blogTeaser.ctaHref) || out.blogTeaser.ctaHref;
+  }
+
+  if (src.sections && typeof src.sections === "object") {
+    out.sections.productsEnabled = asBoolean(src.sections.productsEnabled, out.sections.productsEnabled);
   }
 
   if (src.contact && typeof src.contact === "object") {

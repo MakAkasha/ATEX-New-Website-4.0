@@ -24,4 +24,25 @@ router.put("/home", requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+router.patch("/home/sections", requireAdmin, (req, res) => {
+  const sections = req.body && req.body.sections;
+  if (!sections || typeof sections !== "object") {
+    return res.status(400).json({ error: "INVALID_SECTIONS" });
+  }
+
+  if (typeof sections.productsEnabled !== "boolean") {
+    return res.status(400).json({ error: "INVALID_PRODUCTS_ENABLED" });
+  }
+
+  const db = getDb();
+  const row = db.prepare("SELECT content_json FROM home_content WHERE id = 1").get();
+  const content = safeJsonParse(row ? row.content_json : "", null);
+  const normalized = normalizeHomeContent(content);
+  normalized.sections = normalized.sections || {};
+  normalized.sections.productsEnabled = sections.productsEnabled;
+
+  db.prepare("UPDATE home_content SET content_json = ? WHERE id = 1").run(JSON.stringify(normalized));
+  res.json({ ok: true, sections: normalized.sections });
+});
+
 module.exports = router;

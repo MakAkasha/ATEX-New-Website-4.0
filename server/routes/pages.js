@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 
 const { requireAdminPage } = require("../auth");
@@ -10,6 +11,35 @@ const { solutions } = require("../data/solutions");
 
 const router = express.Router();
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
+
+function loadPartnerLogos() {
+  const dir = path.join(ROOT_DIR, "assets", "social-logos");
+  try {
+    const files = fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name)
+      .filter((name) => /^partner-(\d+)\.svg$/i.test(name))
+      .sort((a, b) => {
+        const ai = Number((a.match(/^partner-(\d+)\.svg$/i) || [])[1] || 0);
+        const bi = Number((b.match(/^partner-(\d+)\.svg$/i) || [])[1] || 0);
+        return ai - bi;
+      })
+      .map((name) => `/assets/social-logos/${name}`);
+    if (files.length) return files;
+  } catch {
+    // ignore and fallback
+  }
+
+  return [
+    "/assets/social-logos/roshn.svg",
+    "/assets/social-logos/red-sea.svg",
+    "/assets/social-logos/stc.svg",
+    "/assets/social-logos/new-murabba.svg",
+    "/assets/social-logos/almarai.svg",
+    "/assets/social-logos/aramco-digital.svg",
+  ];
+}
 
 function loadHomeContent() {
   const db = getDb();
@@ -62,6 +92,7 @@ function baseRenderData(req) {
 router.get("/", (req, res) => {
   const content = loadHomeContent();
   const db = getDb();
+  const socialLogos = loadPartnerLogos();
   const latestPosts = db
     .prepare(
       "SELECT id, slug, title, excerpt, cover_image, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC LIMIT 3"
@@ -69,6 +100,7 @@ router.get("/", (req, res) => {
     .all();
   return res.render("home", {
     content,
+    socialLogos,
     latestPosts,
     ...baseRenderData(req),
     meta: {

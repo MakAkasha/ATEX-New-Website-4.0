@@ -768,6 +768,8 @@
     // Process
     $("#processHeading").value = homeDraft.process?.heading || "";
     $("#processSubheading").value = homeDraft.process?.subheading || "";
+    const productsToggle = $("#sectionsProductsEnabled");
+    if (productsToggle) productsToggle.checked = homeDraft.sections?.productsEnabled !== false;
 
     // Integrations
     $("#integrationsHeading").value = homeDraft.integrations?.heading || "";
@@ -796,6 +798,7 @@
     homeDraft.platform = homeDraft.platform || {};
     homeDraft.why = homeDraft.why || {};
     homeDraft.process = homeDraft.process || {};
+    homeDraft.sections = homeDraft.sections || {};
     homeDraft.integrations = homeDraft.integrations || {};
     homeDraft.faq = homeDraft.faq || {};
     homeDraft.contact = homeDraft.contact || {};
@@ -837,6 +840,8 @@
     // Process
     homeDraft.process.heading = $("#processHeading").value.trim();
     homeDraft.process.subheading = $("#processSubheading").value.trim();
+    const productsToggle = $("#sectionsProductsEnabled");
+    homeDraft.sections.productsEnabled = productsToggle ? !!productsToggle.checked : homeDraft.sections.productsEnabled !== false;
 
     // Integrations
     homeDraft.integrations.heading = $("#integrationsHeading").value.trim();
@@ -878,15 +883,50 @@
     }
     syncDraftFromFields();
 
-    await api("/api/content/home", { method: "PUT", body: JSON.stringify({ content: homeDraft }) });
-    status.textContent = "تم الحفظ";
-    setDirty("home", false);
-    showToast("تم حفظ الصفحة الرئيسية");
-    setTimeout(() => (status.textContent = ""), 1500);
+    try {
+      await api("/api/content/home", { method: "PUT", body: JSON.stringify({ content: homeDraft }) });
+      status.textContent = "تم الحفظ";
+      setDirty("home", false);
+      showToast("تم حفظ الصفحة الرئيسية");
+      setTimeout(() => (status.textContent = ""), 1500);
+    } catch (err) {
+      status.textContent = err?.status === 401 ? "انتهت الجلسة، سجّل الدخول مرة أخرى" : "فشل حفظ الصفحة";
+      showToast(status.textContent, "error");
+      throw err;
+    }
   }
 
   const saveHomeBtn = $("#saveHomeBtn");
   if (saveHomeBtn) saveHomeBtn.addEventListener("click", () => saveHome().catch(console.error));
+
+  async function saveHomeSectionsPatch() {
+    const status = $("#homeStatus");
+    const productsToggle = $("#sectionsProductsEnabled");
+    const productsEnabled = productsToggle ? !!productsToggle.checked : true;
+
+    status.textContent = "جارٍ الحفظ...";
+    await api("/api/content/home/sections", {
+      method: "PATCH",
+      body: JSON.stringify({
+        sections: { productsEnabled },
+      }),
+    });
+    status.textContent = "تم الحفظ";
+    setDirty("home", false);
+    showToast("تم حفظ إعدادات الأقسام");
+    setTimeout(() => (status.textContent = ""), 1500);
+  }
+
+  $("#sectionsProductsEnabled")?.addEventListener("change", async () => {
+    setDirty("home", true);
+    try {
+      await saveHomeSectionsPatch();
+    } catch (err) {
+      const status = $("#homeStatus");
+      status.textContent = err?.status === 401 ? "انتهت الجلسة، سجّل الدخول مرة أخرى" : "فشل حفظ إعدادات الأقسام";
+      showToast(status.textContent, "error");
+    }
+  });
 
   $("#heroVideoSourceType")?.addEventListener("change", () => {
     setHeroVideoModeUI();

@@ -1,11 +1,18 @@
 const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
+const bcrypt = require("bcrypt");
 
 const { getDefaultHomeContent, normalizeHomeContent } = require("./homeSchema");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DB_PATH = process.env.DB_PATH || path.join(ROOT_DIR, "server", "data.sqlite");
+
+function parseBool(value, fallback = false) {
+  const s = String(value || "").trim().toLowerCase();
+  if (!s) return fallback;
+  return ["1", "true", "yes", "on"].includes(s);
+}
 
 /**
  * Returns a singleton SQLite connection.
@@ -191,6 +198,20 @@ function migrate() {
       }
     } catch {
       // Ignore seed failures; empty table is still valid.
+    }
+  }
+
+  // Optional default-admin seed (explicitly enabled via env)
+  // Useful for first bootstrap; rotate immediately before go-live.
+  const defaultAdminEnabled = parseBool(process.env.DEFAULT_ADMIN_ENABLED, false);
+  const defaultAdminUsername = String(process.env.DEFAULT_ADMIN_USERNAME || "").trim();
+  const defaultAdminPassword = String(process.env.DEFAULT_ADMIN_PASSWORD || "").trim();
+  if (defaultAdminEnabled && defaultAdminUsername && defaultAdminPassword) {
+    const adminsCount = Number(db.prepare("SELECT COUNT(*) as c FROM admins").get()?.c || 0);
+    if (adminsCount === 0) {
+      const hash = bcrypt.hashSync(defaultAdminPassword, 12);
+      db.prepare("INSERT INTO admins (username, password_hash) VALUES (?, ?)").run(defaultAdminUsername, hash);
+      console.warn("[ATEX] Default admin seeded. IMPORTANT: change credentials before production use.");
     }
   }
 }

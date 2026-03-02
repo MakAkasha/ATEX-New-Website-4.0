@@ -186,6 +186,7 @@ function initMarquee() {
     const viewport = qs("[data-marquee-viewport]", root);
     const runner = qs("[data-marquee-runner]", root);
     const source = qs("[data-marquee-content]", root);
+    const hasStaticClone = !!qs("[data-marquee-static-clone]", runner);
     if (!viewport || !runner || !source) return;
 
     // Remove generated clones before re-measuring
@@ -193,28 +194,37 @@ function initMarquee() {
 
     root.classList.remove("is-static");
 
-    const sourceWidth = source.getBoundingClientRect().width;
-    const viewportWidth = viewport.getBoundingClientRect().width;
+    const sourceWidth = source.scrollWidth || source.getBoundingClientRect().width;
+    const viewportWidth = viewport.clientWidth || viewport.getBoundingClientRect().width;
 
     if (!sourceWidth || !viewportWidth) {
       root.classList.add("is-static");
       return;
     }
 
-    // Always append at least one clone, then keep cloning until the runner
-    // is long enough to cover viewport during the whole one-block travel.
+    // Keep cloning only when necessary until the runner is long enough to
+    // cover viewport during the whole one-block travel.
     // Seamless condition when animating by sourceWidth:
     // runnerWidth >= viewportWidth + sourceWidth
-    const minWidth = viewportWidth + sourceWidth;
+    const minWidth = Math.max(viewportWidth + sourceWidth, sourceWidth * 2);
     const maxClones = 32;
     let cloneCount = 0;
 
-    while ((runner.scrollWidth < minWidth || cloneCount === 0) && cloneCount < maxClones) {
+    while (runner.scrollWidth < minWidth && cloneCount < maxClones) {
       const clone = source.cloneNode(true);
       clone.setAttribute("data-marquee-clone", "true");
       clone.setAttribute("aria-hidden", "true");
       runner.appendChild(clone);
       cloneCount += 1;
+    }
+
+    // If markup has no static duplicate and no generated clones were needed,
+    // append one fallback clone to guarantee loop continuity.
+    if (!hasStaticClone && cloneCount === 0) {
+      const clone = source.cloneNode(true);
+      clone.setAttribute("data-marquee-clone", "true");
+      clone.setAttribute("aria-hidden", "true");
+      runner.appendChild(clone);
     }
 
     // Pixel-distance animation: move exactly one source content width
@@ -589,7 +599,7 @@ function initGsap() {
     const isWhySection = sec.id === "why";
     const items = isWhySection
       ? qsa(".section__head, .whyKeypoints__item", sec)
-      : qsa(".section__head, .grid > *, .processFlow__item, .banner, .cta, .footer", sec);
+      : qsa(".section__head, .grid > *, .banner, .cta, .footer", sec);
     if (!items.length) return;
 
     gsap.from(items, {
@@ -640,11 +650,13 @@ function initGsap() {
     const arrows = qsa(".processFlow__arrow", processFlow);
 
     gsap.from(items, {
+      immediateRender: false,
       opacity: 0,
       y: 18,
       duration: 0.6,
       ease: "power2.out",
       stagger: 0.06,
+      clearProps: "opacity,transform",
       ...withScrollTrigger({ trigger: processFlow, start: "top 75%", once: true }),
     });
 

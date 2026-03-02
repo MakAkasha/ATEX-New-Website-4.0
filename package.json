@@ -5,7 +5,10 @@
   "main": "server/app.js",
   "scripts": {
     "dev": "nodemon server/app.js",
-    "start": "node server/app.js"
+    "start": "node server/app.js",
+    "backup:db": "node server/scripts/backup-db.js",
+    "create-admin": "node server/scripts/create-admin.js",
+    "regression": "node tools/regression.js"
   },
   "keywords": [],
   "author": "",

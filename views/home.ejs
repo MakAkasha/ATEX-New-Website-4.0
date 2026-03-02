@@ -291,11 +291,18 @@
       <section class="section" id="process">
         <div class="container">
           <div class="section__head">
-            <h2><%= content?.process?.heading || 'كيف نعمل' %></h2>
-            <p><%= content?.process?.subheading || 'خطوات واضحة من الفكرة إلى التشغيل ثم التحسين المستمر.' %></p>
+            <h2>كيف نعمل</h2>
+            <p>خطوات واضحة من الفكرة إلى التشغيل ثم التحسين المستمر.</p>
           </div>
 
-          <% const processSteps = Array.isArray(content?.process?.steps) ? content.process.steps : []; %>
+          <% const processDefaultSteps = [
+            { title: 'تحليل حالة الاستخدام', desc: 'تعريف الهدف، المؤشرات، نطاق الأجهزة، ومتطلبات التكامل.' },
+            { title: 'اختيار الأجهزة والاتصال', desc: 'ترشيح الحساسات/الأجهزة والبروتوكولات المناسبة للبيئة.' },
+            { title: 'التركيب والتهيئة', desc: 'تركيب ميداني، إعداد تنبيهات أولية، واختبارات قبول.' },
+            { title: 'لوحات وتقارير', desc: 'لوحات تشغيلية وتقارير دورية للمديرين وفرق العمليات.' },
+            { title: 'تحسين مستمر', desc: 'تحسين القواعد، تقليل الإنذارات الخاطئة، وتوسيع النطاق.' }
+          ]; %>
+          <% const processSteps = processDefaultSteps; %>
           <ol class="processFlow" aria-label="مخطط تدفق خطوات التنفيذ">
             <% processSteps.forEach(function(s, idx){ %>
               <li class="processFlow__item">
@@ -319,14 +326,21 @@
             <p>منصات وتقنيات الاتصال والتكامل والتحليلات المستخدمة في حلول إنترنت الأشياء.</p>
           </div>
 
-          <% const chips = ['Wi-Fi 7', 'WPA3', 'بلوتوث 5.4', 'Zigbee 3.0', 'Thread 1.4', 'Matter 1.5', 'LoRaWAN 1.1', 'NB-IoT', 'LTE-M / eMTC', 'MQTT 5.0', 'CoAP 1.0', 'HTTP/3', 'QUIC v1', 'RTSP 2.0', 'PoE IEEE 802.3bt', 'TLS 1.3']; %>
+          <% const defaultChips = ['Wi-Fi 7', 'WPA3', 'بلوتوث 5.4', 'Zigbee 3.0', 'Thread 1.4', 'Matter 1.5', 'LoRaWAN 1.1', 'NB-IoT', 'LTE-M / eMTC', 'MQTT 5.0', 'CoAP 1.0', 'HTTP/3', 'QUIC v1', 'RTSP 2.0', 'PoE IEEE 802.3bt', 'TLS 1.3']; %>
+          <% const chips = (Array.isArray(content?.integrations?.chips) ? content.integrations.chips : defaultChips).map(function(c){ return String(c || '').trim(); }).filter(Boolean); %>
           <div class="marquee" data-marquee aria-label="شريط تكاملات">
             <div class="marquee__viewport" data-marquee-viewport>
               <div class="marquee__runner" data-marquee-runner>
                 <div class="marquee__content" data-marquee-content>
-                  <% chips.forEach(function(label, idx){ %>
+                  <% chips.forEach(function(label){ %>
                     <span class="marquee__text"><%= label %></span>
-                    <% if (idx < chips.length - 1) { %><span class="marquee__sep" aria-hidden="true">|</span><% } %>
+                    <span class="marquee__sep" aria-hidden="true">|</span>
+                  <% }) %>
+                </div>
+                <div class="marquee__content" data-marquee-static-clone aria-hidden="true">
+                  <% chips.forEach(function(label){ %>
+                    <span class="marquee__text"><%= label %></span>
+                    <span class="marquee__sep" aria-hidden="true">|</span>
                   <% }) %>
                 </div>
               </div>
@@ -373,16 +387,19 @@
         </div>
       </section>
 
-      <!-- Products (rendered from JSON/API later) -->
-      <section class="section" id="products">
-        <div class="container">
-          <div class="section__head">
-            <h2>منتجات جاهزة للتوسّع</h2>
-            <p>منتجات يتم إدارتها مباشرة من لوحة التحكم مع إمكانية النشر والإخفاء.</p>
+      <% const showProductsSection = content?.sections?.productsEnabled !== false; %>
+      <% if (showProductsSection) { %>
+        <!-- Products (rendered from JSON/API later) -->
+        <section class="section" id="products">
+          <div class="container">
+            <div class="section__head">
+              <h2>منتجات جاهزة للتوسّع</h2>
+              <p>منتجات يتم إدارتها مباشرة من لوحة التحكم مع إمكانية النشر والإخفاء.</p>
+            </div>
+            <div class="grid grid--products" id="productsGrid" aria-live="polite"></div>
           </div>
-          <div class="grid grid--products" id="productsGrid" aria-live="polite"></div>
-        </div>
-      </section>
+        </section>
+      <% } %>
 
       <!-- Blog teaser -->
       <section class="section" id="blog">
@@ -432,13 +449,26 @@
             <p>شركاؤنا وعملاؤنا في السعودية يعتمدون على أتكس في تنفيذ مشاريع ذكية بمعايير تشغيل عالية.</p>
           </div>
 
-          <div class="socialProof__logos" aria-label="شعارات شركات سعودية">
-            <div class="socialProof__logo"><span>مجموعة روشن</span></div>
-            <div class="socialProof__logo"><span>شركة البحر الأحمر الدولية</span></div>
-            <div class="socialProof__logo"><span>شركة الاتصالات السعودية</span></div>
-            <div class="socialProof__logo"><span>شركة تطوير المربع الجديد</span></div>
-            <div class="socialProof__logo"><span>شركة المراعي</span></div>
-            <div class="socialProof__logo"><span>شركة أرامكو الرقمية</span></div>
+          <div class="socialProof__logos marquee" data-marquee aria-label="شعارات شركات سعودية">
+            <div class="marquee__viewport" data-marquee-viewport>
+              <div class="marquee__runner" data-marquee-runner>
+                <div class="marquee__content" data-marquee-content>
+                  <% (Array.isArray(socialLogos) ? socialLogos : []).forEach(function(logoPath, i){ %>
+                    <div class="socialProof__logo" aria-label="شريك <%= i + 1 %>">
+                      <img src="<%= logoPath %>" alt="شعار الشريك <%= i + 1 %>" loading="lazy" />
+                    </div>
+                  <% }) %>
+                </div>
+
+                <div class="marquee__content" data-marquee-static-clone aria-hidden="true">
+                  <% (Array.isArray(socialLogos) ? socialLogos : []).forEach(function(logoPath){ %>
+                    <div class="socialProof__logo">
+                      <img src="<%= logoPath %>" alt="" loading="lazy" />
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="grid grid--cards quotesGrid">

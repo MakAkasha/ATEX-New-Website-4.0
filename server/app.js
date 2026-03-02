@@ -4,7 +4,8 @@ const session = require("express-session");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-const { migrate } = require("./db");
+const { migrate, getDb } = require("./db");
+const { getConfig } = require("./config");
 const authRoutes = require("./routes/auth");
 const contentRoutes = require("./routes/content");
 const postsRoutes = require("./routes/posts");
@@ -18,6 +19,12 @@ const pagesRoutes = require("./routes/pages");
 
 const app = express();
 const ROOT_DIR = path.resolve(__dirname, "..");
+const config = getConfig();
+
+app.disable("x-powered-by");
+if (config.trustProxy) {
+  app.set("trust proxy", 1);
+}
 
 // Views (EJS) for server-rendered pages like blog/legal
 app.set("view engine", "ejs");
@@ -29,15 +36,41 @@ migrate();
 // Security headers
 app.use(
   helmet({
-    contentSecurityPolicy: false, // we will set CSP later once we finalize CDN usage (GSAP/FontAwesome/Quill)
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: config.cspDirectives,
+      reportOnly: config.cspReportOnly,
+    },
   })
 );
+
+if (config.enableRequestLogs) {
+  app.use((req, res, next) => {
+    const startAt = Date.now();
+    res.on("finish", () => {
+      const ms = Date.now() - startAt;
+      console.log(
+        JSON.stringify({
+          ts: new Date().toISOString(),
+          level: "info",
+          type: "http",
+          method: req.method,
+          path: req.originalUrl,
+          status: res.statusCode,
+          ms,
+          ip: req.ip,
+        })
+      );
+    });
+    next();
+  });
+}
 
 // Rate limit (general)
 app.use(
   rateLimit({
-    windowMs: 60 * 1000,
-    limit: 300,
+    windowMs: config.globalRateLimitWindowMs,
+    limit: config.globalRateLimitLimit,
     standardHeaders: true,
     legacyHeaders: false,
   })
@@ -49,18 +82,32 @@ app.use(express.urlencoded({ extended: true }));
 // Sessions
 app.use(
   session({
-    name: "atex.sid",
-    secret: process.env.SESSION_SECRET || "dev-secret-change-me",
+    name: config.sessionName,
+    secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // set true behind HTTPS (or trust proxy)
-      maxAge: 1000 * 60 * 60 * 12, // 12h
+      sameSite: config.sessionSameSite,
+      secure: config.sessionSecureCookie,
+      maxAge: config.sessionMaxAgeMs,
     },
   })
 );
+
+app.get("/healthz", (req, res) => {
+  res.json({ ok: true, env: config.nodeEnv, uptimeSec: Math.round(process.uptime()) });
+});
+
+app.get("/readyz", (req, res) => {
+  try {
+    const db = getDb();
+    db.prepare("SELECT 1 as ok").get();
+    return res.json({ ok: true, db: true });
+  } catch {
+    return res.status(503).json({ ok: false, db: false });
+  }
+});
 
 // Static public site
 app.use("/assets", express.static(path.join(ROOT_DIR, "assets")));
@@ -92,7 +139,17 @@ app.use(pagesRoutes);
 // Basic error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error(
+    JSON.stringify({
+      ts: new Date().toISOString(),
+      level: "error",
+      type: "request_error",
+      method: req.method,
+      path: req.originalUrl,
+      message: err && err.message ? err.message : "UNKNOWN_ERROR",
+      stack: err && err.stack ? err.stack : undefined,
+    })
+  );
   // If Express/router sets a status (e.g. URIError on malformed % encodings => 400),
   // preserve it instead of always forcing 500.
   const status = Number(err.status || err.statusCode || 500);
@@ -102,8 +159,6 @@ app.use((err, req, res, next) => {
   return res.status(500).json({ error: "SERVER_ERROR" });
 });
 
-const port = Number(process.env.PORT || 5173);
-const host = process.env.HOST || "127.0.0.1";
-app.listen(port, host, () => {
-  console.log(`[ATEX] server running on http://${host}:${port}`);
+app.listen(config.port, config.host, () => {
+  console.log(`[ATEX] server running on http://${config.host}:${config.port} (${config.nodeEnv})`);
 });

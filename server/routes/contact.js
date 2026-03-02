@@ -1,8 +1,18 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const { getDb } = require("../db");
+const { getConfig } = require("../config");
 const { nonEmptyString } = require("../utils/safe");
 
 const router = express.Router();
+const config = getConfig();
+
+const contactLimiter = rateLimit({
+  windowMs: config.contactRateLimitWindowMs,
+  limit: config.contactRateLimitLimit,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").toLowerCase());
@@ -12,7 +22,7 @@ function normalizeText(value, maxLen) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLen);
 }
 
-router.post("/", (req, res) => {
+router.post("/", contactLimiter, (req, res) => {
   const name = normalizeText(nonEmptyString(req.body?.name) || "", 120);
   const email = normalizeText(nonEmptyString(req.body?.email) || "", 160).toLowerCase();
   const message = normalizeText(nonEmptyString(req.body?.message) || "", 3000);
