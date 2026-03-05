@@ -68,6 +68,8 @@ function loadGeneralSettings() {
     homepageTitle: "ATEX | حلول إنترنت الأشياء في السعودية",
     homepageDescription:
       "ATEX مزود سعودي لحلول إنترنت الأشياء للشركات: تتبّع الأصول، إدارة الأساطيل، المراقبة البيئية، العدادات والطاقة، وسلسلة التبريد مع منصة بيانات وتكاملات.",
+    showProductsSection: false,
+    showBlogSection: true,
   };
   const parsed = safeJsonParse(row && row.value_json ? row.value_json : "", null);
   if (!parsed || typeof parsed !== "object") return base;
@@ -75,6 +77,8 @@ function loadGeneralSettings() {
     ...base,
     ...parsed,
     maintenanceMode: parseBoolean(parsed.maintenanceMode, false),
+    showProductsSection: parseBoolean(parsed.showProductsSection, false),
+    showBlogSection: parseBoolean(parsed.showBlogSection, true),
   };
 }
 
@@ -86,12 +90,30 @@ function saveGeneralSettings(next) {
     maintenanceMode: parseBoolean(next.maintenanceMode, false),
     homepageTitle: String(next.homepageTitle || "").trim(),
     homepageDescription: String(next.homepageDescription || "").trim(),
+    showProductsSection: parseBoolean(next.showProductsSection, false),
+    showBlogSection: parseBoolean(next.showBlogSection, true),
   };
   const db = getDb();
   db.prepare(
     "INSERT INTO settings (key, value_json) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json"
   ).run(KEY_GENERAL, JSON.stringify(clean));
   return clean;
+}
+
+function shouldShowProducts() {
+  const settings = loadGeneralSettings();
+  if (!settings.showProductsSection) return false;
+  const db = getDb();
+  const row = db.prepare("SELECT COUNT(*) as c FROM products WHERE published = 1").get();
+  return Number(row?.c || 0) > 0;
+}
+
+function shouldShowBlog() {
+  const settings = loadGeneralSettings();
+  if (!settings.showBlogSection) return false;
+  const db = getDb();
+  const row = db.prepare("SELECT COUNT(*) as c FROM posts WHERE published = 1").get();
+  return Number(row?.c || 0) > 0;
 }
 
 // Admin-only get
@@ -124,8 +146,18 @@ router.get("/public/analytics", (req, res) => {
   return res.json({ settings: s });
 });
 
+// Public endpoint to check section visibility
+router.get("/public/sections", (req, res) => {
+  return res.json({
+    products: shouldShowProducts(),
+    blog: shouldShowBlog(),
+  });
+});
+
 module.exports = {
   router,
   loadAnalyticsSettings,
   loadGeneralSettings,
+  shouldShowProducts,
+  shouldShowBlog,
 };

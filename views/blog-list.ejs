@@ -29,9 +29,7 @@
             <article class="postCard" data-tilt>
               <a href="/blog/<%= p.slug %>">
                 <div class="postCard__img">
-                  <% if (p.cover_image) { %>
-                    <img src="<%= p.cover_image %>" alt="<%= p.title %>" loading="lazy" />
-                  <% } %>
+                  <img src="<%= p.cover_image || '/assets/placeholder.gif' %>" alt="<%= p.title %>" loading="lazy" />
                 </div>
                 <div class="postCard__body">
                   <h3 class="postCard__title"><%= p.title %></h3>

@@ -116,9 +116,7 @@
             <h1 class="post__title"><%= post.title %></h1>
             <div class="post__meta" dir="ltr"><%= post.created_at %></div>
           </header>
-          <% if (post.cover_image) { %>
-            <div class="post__cover"><img src="<%= post.cover_image %>" alt="<%= post.title %>" /></div>
-          <% } %>
+          <div class="post__cover"><img src="<%= post.cover_image || '/assets/placeholder.gif' %>" alt="<%= post.title %>" /></div>
           <article class="post__content"><%- post.content_html %></article>
           <div class="post__back">
             <a class="btn btn--ghost btn--small" href="/blog">رجوع للمدونة</a>

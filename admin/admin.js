@@ -1897,6 +1897,8 @@
       $("#settingsAdminEmail").value = s.adminEmail || "";
       $("#settingsWhatsapp").value = s.whatsapp || "";
       $("#settingsMaintenanceMode").checked = !!s.maintenanceMode;
+      $("#settingsShowProductsSection").checked = s.showProductsSection !== false;
+      $("#settingsShowBlogSection").checked = s.showBlogSection !== false;
       $("#settingsHomepageTitle").value = s.homepageTitle || "";
       $("#settingsHomepageDescription").value = s.homepageDescription || "";
       status.textContent = "";
@@ -1915,6 +1917,8 @@
       adminEmail: $("#settingsAdminEmail").value.trim(),
       whatsapp: $("#settingsWhatsapp").value.trim(),
       maintenanceMode: $("#settingsMaintenanceMode").checked,
+      showProductsSection: $("#settingsShowProductsSection").checked,
+      showBlogSection: $("#settingsShowBlogSection").checked,
       homepageTitle: $("#settingsHomepageTitle").value.trim(),
       homepageDescription: $("#settingsHomepageDescription").value.trim(),
     };

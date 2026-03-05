@@ -387,7 +387,7 @@
         </div>
       </section>
 
-      <% const showProductsSection = content?.sections?.productsEnabled !== false; %>
+      <% const showProductsSection = (content?.sections?.productsEnabled !== false) && (typeof sectionVisibility?.products === 'boolean' ? sectionVisibility.products : true); %>
       <% if (showProductsSection) { %>
         <!-- Products (rendered from JSON/API later) -->
         <section class="section" id="products">
@@ -401,45 +401,46 @@
         </section>
       <% } %>
 
-      <!-- Blog teaser -->
-      <section class="section" id="blog">
-        <div class="container">
-          <div class="section__head">
-            <h2><%= content?.blogTeaser?.heading || 'المدونة' %></h2>
-            <p><%= content?.blogTeaser?.subheading || 'آخر المقالات وأفضل الممارسات في إنترنت الأشياء.' %></p>
-          </div>
+      <% const showBlogSection = typeof sectionVisibility?.blog === 'boolean' ? sectionVisibility.blog : ((latestPosts || []).length > 0); %>
+      <% if (showBlogSection) { %>
+        <!-- Blog teaser -->
+        <section class="section" id="blog">
+          <div class="container">
+            <div class="section__head">
+              <h2><%= content?.blogTeaser?.heading || 'المدونة' %></h2>
+              <p><%= content?.blogTeaser?.subheading || 'آخر المقالات وأفضل الممارسات في إنترنت الأشياء.' %></p>
+            </div>
 
-          <% if ((latestPosts || []).length) { %>
-            <div class="grid grid--posts" aria-label="آخر المقالات">
-              <% latestPosts.forEach(function(p){ %>
-                <article class="item" data-tilt>
-                  <div class="item__media">
-                    <% if (p.cover_image) { %>
-                      <img src="<%= p.cover_image %>" alt="<%= p.title %>" loading="lazy" />
-                    <% } %>
-                  </div>
-                  <div class="item__body">
-                    <div class="item__tag" dir="ltr">/<%= p.slug %></div>
-                    <h3 class="item__title"><%= p.title %></h3>
-                    <p class="item__desc"><%= p.excerpt || '' %></p>
-                    <div class="item__actions">
-                      <a class="btn btn--primary btn--small" href="/blog/<%= p.slug %>">اقرأ المزيد</a>
-                      <a class="btn btn--ghost btn--small" href="/blog">كل المقالات</a>
+            <% if ((latestPosts || []).length) { %>
+              <div class="grid grid--posts" aria-label="آخر المقالات">
+                <% latestPosts.forEach(function(p){ %>
+                  <article class="item" data-tilt>
+                    <div class="item__media">
+                      <img src="<%= p.cover_image || '/assets/placeholder.gif' %>" alt="<%= p.title %>" loading="lazy" />
                     </div>
-                  </div>
-                </article>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <div class="item" style="padding:16px">
-              <p style="margin:0; font-weight:800">لا توجد مقالات منشورة حالياً. يمكنك نشر مقالات من لوحة الإدارة.</p>
-              <div style="margin-top:10px">
-                <a class="btn btn--primary btn--small" href="<%= content?.blogTeaser?.ctaHref || '/blog' %>"><%= content?.blogTeaser?.ctaText || 'فتح المدونة' %></a>
+                    <div class="item__body">
+                      <div class="item__tag" dir="ltr">/<%= p.slug %></div>
+                      <h3 class="item__title"><%= p.title %></h3>
+                      <p class="item__desc"><%= p.excerpt || '' %></p>
+                      <div class="item__actions">
+                        <a class="btn btn--primary btn--small" href="/blog/<%= p.slug %>">اقرأ المزيد</a>
+                        <a class="btn btn--ghost btn--small" href="/blog">كل المقالات</a>
+                      </div>
+                    </div>
+                  </article>
+                <% }) %>
               </div>
-            </div>
-          <% } %>
-        </div>
-      </section>
+            <% } else { %>
+              <div class="item" style="padding:16px">
+                <p style="margin:0; font-weight:800">لا توجد مقالات منشورة حالياً. يمكنك نشر مقالات من لوحة الإدارة.</p>
+                <div style="margin-top:10px">
+                  <a class="btn btn--primary btn--small" href="<%= content?.blogTeaser?.ctaHref || '/blog' %>"><%= content?.blogTeaser?.ctaText || 'فتح المدونة' %></a>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      <% } %>
 
       <!-- Social proof -->
       <section class="section socialProof" id="social-proof">

@@ -6,7 +6,7 @@ const { requireAdminPage } = require("../auth");
 const { getDb } = require("../db");
 const { normalizeHomeContent } = require("../homeSchema");
 const { sanitizePageHtml } = require("./customPages");
-const { loadAnalyticsSettings } = require("./settings");
+const { loadAnalyticsSettings, shouldShowProducts, shouldShowBlog } = require("./settings");
 const { solutions } = require("../data/solutions");
 
 const router = express.Router();
@@ -93,15 +93,22 @@ router.get("/", (req, res) => {
   const content = loadHomeContent();
   const db = getDb();
   const socialLogos = loadPartnerLogos();
-  const latestPosts = db
-    .prepare(
-      "SELECT id, slug, title, excerpt, cover_image, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC LIMIT 3"
-    )
-    .all();
+  const sectionVisibility = {
+    products: shouldShowProducts(),
+    blog: shouldShowBlog(),
+  };
+  const latestPosts = sectionVisibility.blog
+    ? db
+        .prepare(
+          "SELECT id, slug, title, excerpt, cover_image, created_at FROM posts WHERE published = 1 ORDER BY created_at DESC LIMIT 3"
+        )
+        .all()
+    : [];
   return res.render("home", {
     content,
     socialLogos,
     latestPosts,
+    sectionVisibility,
     ...baseRenderData(req),
     meta: {
       title: "ATEX | حلول إنترنت الأشياء في السعودية",
