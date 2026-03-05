@@ -21,6 +21,10 @@ server/data.sqlite
 *.sqlite-shm
 *.sqlite-wal
 
+# User-uploaded files (server manages these at runtime)
+uploads/*
+!uploads/.gitkeep
+
 # Deployment artifacts
 atex-deploy.zip
 __deploy_temp__/
