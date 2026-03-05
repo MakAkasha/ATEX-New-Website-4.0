@@ -301,6 +301,11 @@ function initContactForm() {
   const form = qs("#contactForm");
   if (!form) return;
 
+  // Static-hosting mode: allow native HTML form submission (e.g. FormSubmit)
+  if (form.dataset.staticSubmit === "true") {
+    return;
+  }
+
   const note = qs("[data-contact-note]", form);
   const submitBtn = qs("[data-contact-submit]", form);
   const nameInput = qs('input[name="name"]', form);
@@ -454,7 +459,7 @@ function renderProducts(items) {
         <h3 class="item__title">${p.title}</h3>
         <p class="item__desc">${p.description}</p>
         <div class="item__actions">
-          <a class="btn btn--primary btn--small" href="/contact-us">اطلب عرضاً</a>
+          <a class="btn btn--primary btn--small" href="contact-us.html">اطلب عرضاً</a>
           <a class="btn btn--ghost btn--small" href="#" aria-disabled="true" tabindex="-1">تحميل كتيّب (قريباً)</a>
         </div>
       </div>
@@ -481,7 +486,7 @@ function renderPosts(items) {
         <h3 class="item__title">${p.title}</h3>
         <p class="item__desc">${p.excerpt}</p>
         <div class="item__actions">
-          <a class="btn btn--ghost btn--small" href="/contact-us">اقرأ المزيد (عبر تواصل)</a>
+          <a class="btn btn--ghost btn--small" href="contact-us.html">اقرأ المزيد (عبر تواصل)</a>
         </div>
       </div>
     `;
@@ -799,26 +804,12 @@ async function bootstrap() {
   initContactForm();
 
   // Data-driven render
-  try {
-    const [productsRes, posts] = await Promise.all([
-      fetch("/api/products/public", { cache: "no-store" }).then(async (r) => {
-        if (!r.ok) throw new Error("PUBLIC_PRODUCTS_API_FAILED");
-        return r.json();
-      }),
-      loadJson("data/posts.json"),
-    ]);
-    const products = Array.isArray(productsRes?.products) ? productsRes.products : [];
-    renderProducts(products);
-    renderPosts(posts);
-  } catch (e) {
-    // Fallback to static JSON if API is unavailable.
-    Promise.all([loadJson("data/products.json"), loadJson("data/posts.json")])
-      .then(([products, posts]) => {
-        renderProducts(products);
-        renderPosts(posts);
-      })
-      .catch((err) => console.warn(err || e));
-  }
+  Promise.all([loadJson("data/products.json"), loadJson("data/posts.json")])
+    .then(([products, posts]) => {
+      renderProducts(products);
+      renderPosts(posts);
+    })
+    .catch((err) => console.warn(err));
 
   initTilt();
   initGsap();

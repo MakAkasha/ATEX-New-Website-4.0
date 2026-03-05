@@ -15,3 +15,11 @@ Thumbs.db
 
 # Local runtime logs
 server_run*.log
+
+# SQLite WAL/SHM temp files
+*.sqlite-shm
+*.sqlite-wal
+
+# Deployment artifacts
+atex-deploy.zip
+__deploy_temp__/
