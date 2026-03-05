@@ -8,27 +8,36 @@ const SEED_DIR = path.join(ROOT, "assets", "blog-seed");
 
 const IMAGE_MAP = {
   smart_home_system_saudi_arabia_guide: {
-    REPLACE_WITH_FEATURED_IMAGE_URL: "/uploads/images/2026/03/blog/smart-home-featured.jpg",
-    REPLACE_WITH_SECTION_IMAGE_1_URL: "/uploads/images/2026/03/blog/smart-home-controls.jpg",
-    REPLACE_WITH_SECTION_IMAGE_2_URL: "/uploads/images/2026/03/blog/smart-home-lock.jpg",
-    REPLACE_WITH_SECTION_IMAGE_3_URL: "/uploads/images/2026/03/blog/smart-home-security.jpg",
-    REPLACE_WITH_SECTION_IMAGE_4_URL: "/uploads/images/2026/03/blog/smart-home-thermostat.jpg",
+    REPLACE_WITH_FEATURED_IMAGE_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_1_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_2_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_3_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_4_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
   },
   smart_building_systems_saudi_arabia: {
-    REPLACE_WITH_FEATURED_IMAGE_URL: "/uploads/images/2026/03/blog/smart-building-featured.jpg",
-    REPLACE_WITH_SECTION_IMAGE_1_URL: "/uploads/images/2026/03/blog/smart-building-dashboard.jpg",
-    REPLACE_WITH_SECTION_IMAGE_2_URL: "/uploads/images/2026/03/blog/smart-building-access.jpg",
-    REPLACE_WITH_SECTION_IMAGE_3_URL: "/uploads/images/2026/03/blog/smart-building-security.jpg",
-    REPLACE_WITH_SECTION_IMAGE_4_URL: "/uploads/images/2026/03/blog/smart-building-hvac.jpg",
+    REPLACE_WITH_FEATURED_IMAGE_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_1_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_2_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_3_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_4_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
   },
   smart_hotel_systems_saudi_arabia: {
-    REPLACE_WITH_FEATURED_IMAGE_URL: "/uploads/images/2026/03/blog/smart-hotel-featured.jpg",
-    REPLACE_WITH_SECTION_IMAGE_1_URL: "/uploads/images/2026/03/blog/smart-hotel-panel.jpg",
-    REPLACE_WITH_SECTION_IMAGE_2_URL: "/uploads/images/2026/03/blog/smart-hotel-lock.jpg",
-    REPLACE_WITH_SECTION_IMAGE_3_URL: "/uploads/images/2026/03/blog/smart-hotel-security.jpg",
-    REPLACE_WITH_SECTION_IMAGE_4_URL: "/uploads/images/2026/03/blog/smart-hotel-room-control.jpg",
+    REPLACE_WITH_FEATURED_IMAGE_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_1_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_2_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_3_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
+    REPLACE_WITH_SECTION_IMAGE_4_URL: "https://i0.wp.com/boingboing.net/wp-content/uploads/2015/10/29.gif?fit=1&ssl=1&resize=620%2C4000",
   },
 };
+
+const INTERNAL_GUIDANCE_HEADINGS = [
+  "image plan",
+  "free-to-use image source pools",
+  "suggested blog page structure",
+  "suggested implementation notes for ai agent",
+  "optional related articles ideas",
+  "reference links used for research",
+];
 
 function normalizeSlugKey(slug) {
   return String(slug || "").replace(/-/g, "_");
@@ -87,32 +96,68 @@ function inlineMarkdown(text) {
 function markdownToHtml(markdown) {
   const lines = String(markdown || "").split(/\r?\n/);
   const out = [];
-  let inList = false;
+  let inUnorderedList = false;
+  let inOrderedList = false;
+  let inBlockquote = false;
+  let blockquoteLines = [];
 
-  const closeList = () => {
-    if (inList) {
+  const closeUnorderedList = () => {
+    if (inUnorderedList) {
       out.push("</ul>");
-      inList = false;
+      inUnorderedList = false;
     }
   };
 
-  for (const raw of lines) {
-    const line = raw.trim();
+  const closeOrderedList = () => {
+    if (inOrderedList) {
+      out.push("</ol>");
+      inOrderedList = false;
+    }
+  };
+
+  const closeLists = () => {
+    closeUnorderedList();
+    closeOrderedList();
+  };
+
+  const flushBlockquote = () => {
+    if (!inBlockquote) return;
+    const content = blockquoteLines.map((line) => inlineMarkdown(line)).join("<br />");
+    out.push(`<blockquote><p>${content}</p></blockquote>`);
+    blockquoteLines = [];
+    inBlockquote = false;
+  };
+
+  const closeAllBlocks = () => {
+    closeLists();
+    flushBlockquote();
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+
+    const quote = line.match(/^>\s?(.*)$/);
+    if (quote) {
+      closeLists();
+      inBlockquote = true;
+      blockquoteLines.push(quote[1]);
+      continue;
+    }
 
     if (!line) {
-      closeList();
+      closeAllBlocks();
       continue;
     }
 
     if (/^---+$/.test(line)) {
-      closeList();
+      closeAllBlocks();
       out.push("<hr />");
       continue;
     }
 
     const heading = line.match(/^(#{1,4})\s+(.+)$/);
     if (heading) {
-      closeList();
+      closeAllBlocks();
       const level = heading[1].length;
       out.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
       continue;
@@ -120,34 +165,65 @@ function markdownToHtml(markdown) {
 
     const img = line.match(/^!\[(.*?)\]\((.*?)\)$/);
     if (img) {
-      closeList();
+      closeAllBlocks();
       out.push(`<p><img src="${img[2]}" alt="${img[1]}" loading="lazy" /></p>`);
       continue;
     }
 
     const li = line.match(/^[-*]\s+(.+)$/);
     if (li) {
-      if (!inList) {
+      flushBlockquote();
+      closeOrderedList();
+      if (!inUnorderedList) {
         out.push("<ul>");
-        inList = true;
+        inUnorderedList = true;
       }
       out.push(`<li>${inlineMarkdown(li[1])}</li>`);
       continue;
     }
 
-    const quote = line.match(/^>\s+(.+)$/);
-    if (quote) {
-      closeList();
-      out.push(`<blockquote><p>${inlineMarkdown(quote[1])}</p></blockquote>`);
+    const ol = line.match(/^\d+\.\s+(.+)$/);
+    if (ol) {
+      flushBlockquote();
+      closeUnorderedList();
+      if (!inOrderedList) {
+        out.push("<ol>");
+        inOrderedList = true;
+      }
+      out.push(`<li>${inlineMarkdown(ol[1])}</li>`);
       continue;
     }
 
-    closeList();
+    closeAllBlocks();
     out.push(`<p>${inlineMarkdown(line)}</p>`);
   }
 
-  closeList();
+  closeAllBlocks();
   return out.join("\n");
+}
+
+function trimToPublishableMarkdown(markdown) {
+  const lines = String(markdown || "").split(/\r?\n/);
+  const kept = [];
+
+  for (const line of lines) {
+    const heading = line.match(/^#{2,4}\s+(.+)$/);
+    if (heading) {
+      const normalized = String(heading[1]).trim().toLowerCase();
+      if (INTERNAL_GUIDANCE_HEADINGS.includes(normalized)) {
+        break;
+      }
+    }
+    kept.push(line);
+  }
+
+  return kept.join("\n").trim();
+}
+
+function assertNoUnresolvedPlaceholders(markdown, slug) {
+  const unresolved = String(markdown || "").match(/REPLACE_WITH_[A-Z0-9_]+/g) || [];
+  if (!unresolved.length) return;
+  throw new Error(`UNRESOLVED_PLACEHOLDERS for ${slug}: ${Array.from(new Set(unresolved)).join(", ")}`);
 }
 
 function replaceImagePlaceholders(markdown, slug) {
@@ -176,7 +252,7 @@ function upsertPost(db, post) {
 }
 
 function run() {
-  const files = ["blog_post_no1", "blog_post_no2", "blog_post_no3"].map((f) => path.join(SEED_DIR, f));
+  const files = ["blog_post_no1.md", "blog_post_no2.md", "blog_post_no3.md"].map((f) => path.join(SEED_DIR, f));
   const db = new Database(DB_PATH);
 
   const changes = [];
@@ -186,7 +262,9 @@ function run() {
     const slug = String(meta.slug || "").trim();
     if (!slug) return;
 
-    const bodyWithImages = replaceImagePlaceholders(body, slug);
+    const cleanedBody = trimToPublishableMarkdown(body);
+    const bodyWithImages = replaceImagePlaceholders(cleanedBody, slug);
+    assertNoUnresolvedPlaceholders(bodyWithImages, slug);
     const post = {
       slug,
       title: String(meta.title || "").trim(),
