@@ -1,0 +1,6 @@
+{
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ignore": ["uploads/", "server/data.sqlite", "atex-deploy.zip", "__deploy_temp__/"]
+}
