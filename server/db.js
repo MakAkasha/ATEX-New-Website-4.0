@@ -201,6 +201,37 @@ function migrate() {
     }
   }
 
+  // Seed posts table from data/posts.json once when empty.
+  const postsCount = Number(db.prepare("SELECT COUNT(*) as c FROM posts").get()?.c || 0);
+  if (postsCount === 0) {
+    try {
+      const seedPath = path.join(ROOT_DIR, "data", "posts.json");
+      const raw = fs.readFileSync(seedPath, "utf8");
+      const rows = JSON.parse(raw);
+      if (Array.isArray(rows) && rows.length) {
+        const insert = db.prepare(
+          "INSERT INTO posts (slug, title, excerpt, cover_image, content_html, tags_json, published) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        const tx = db.transaction((items) => {
+          items.forEach((p) => {
+            insert.run(
+              String(p.slug || ""),
+              String(p.title || ""),
+              String(p.excerpt || ""),
+              String(p.cover_image || ""),
+              String(p.content_html || ""),
+              String(p.tags_json || "[]"),
+              p.published === 1 || p.published === true ? 1 : 0
+            );
+          });
+        });
+        tx(rows);
+      }
+    } catch {
+      // Ignore seed failures; empty table is still valid.
+    }
+  }
+
   // Optional default-admin seed (explicitly enabled via env)
   // Useful for first bootstrap; rotate immediately before go-live.
   const defaultAdminEnabled = parseBool(process.env.DEFAULT_ADMIN_ENABLED, false);
